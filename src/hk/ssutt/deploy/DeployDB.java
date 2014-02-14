@@ -20,7 +20,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-// It's work!
 
 public class DeployDB {
     private static final String scheduleURL = "http://www.sgu.ru/schedule";
