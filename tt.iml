@@ -9,6 +9,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="sqlite-jdbc-3.7.2" level="project" />
     <orderEntry type="library" name="jsoup-1.7.3" level="project" />
+    <orderEntry type="library" name="JSOUP" level="project" />
   </component>
 </module>
 
