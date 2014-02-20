@@ -6,10 +6,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,24 +28,32 @@ public class DeployDB {
 
     public DeployDB(String dbPath) {
         this.dbPath = dbPath;
-        List<String[]> faculties = getFaculties();
 
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:" + dbPath + "/timetables.db");
-        } catch (Exception e) {
-            System.out.println(e.getClass().getName() + ": " + e.getMessage());
-            System.exit(1);
+        //move to FS later!
+        if (!(new File(dbPath +"/timetables.db").isFile())) {
+            List<String[]> faculties = getFaculties();
+
+            try {
+                Class.forName("org.sqlite.JDBC");
+                c = DriverManager.getConnection("jdbc:sqlite:" + dbPath + "/timetables.db");
+            } catch (Exception e) {
+                System.out.println(e.getClass().getName() + ": " + e.getMessage());
+                System.exit(1);
+            }
+
+            createILNtable(faculties);//id(knt,mm) + link (http://..) + name(CS&IT)
+
+            for (String[] s : faculties) {
+                List<String[]> groups = getGroups(s[1], s[0]);
+                createFacultyTable(s[0], groups);
+            }
+
+            createHeadsTable();
         }
+    }
 
-        createILNtable(faculties);//id(knt,mm) + link (http://..) + name(CS&IT)
-
-        for (String[] s : faculties) {
-            List<String[]> groups = getGroups(s[1], s[0]);
-            createFacultyTable(s[0], groups);
-        }
-
-        createHeadsTable();
+    public static Connection getConnection() {
+        return c;
     }
 
     private List<String[]> getFaculties() {
@@ -167,7 +172,7 @@ public class DeployDB {
                     "ESC TEXT NOT NULL, " + //non-unescaped addresses (for groups like 141(1))
                     "EVEN INT NOT NULL, " + //sqlite has no boolean
                     "PATH TEXT NOT NULL, " +
-                    "ROTECTED INT NOT NULL);";
+                    "PROTECTED INT NOT NULL);";
 
             stmt.executeUpdate(sql);
             stmt.close();
