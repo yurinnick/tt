@@ -1,6 +1,13 @@
 package hk.ssutt.api.sql;
 
+import com.sun.source.tree.StatementTree;
+
+import javax.swing.plaf.nimbus.State;
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -8,19 +15,28 @@ import java.util.List;
  */
 public class SQLMethods {
     private Connection connection = null;
+    private Queries q = new Queries();
 
     public SQLMethods(Connection connection) {
         this.connection = connection;
     }
 
     //XML files queries
-    //return path of XML files per group on faculty (do we need Group entity?)
+    //return path files per group on faculty (do we need Group entity?)
     public List<String> getAllGroupsOnFaculty(String faculty) {
-        return null;
+        List<String> result = new ArrayList<>();
+
+        String[] params = {"PATH"};
+
+        return processSelectListOperation(String.format(q.getAllGroupsOnFacultyQuery(), faculty), params);
     }
 
     //same here
     public List<String> getGroupListOnFaculty(String faculty, String group) {
+        return null;
+    }
+
+    public List<String> getFacultyNameFromID(String faculty) {
         return null;
     }
 
@@ -57,11 +73,54 @@ public class SQLMethods {
 
 
 
-    private String processStringOperation(String query) {
-        return null;
+    private String processSelectStringOperation(String query, String[] params) {
+        String result = "";
+        Statement stmt = null;
+
+        try {
+
+            stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+
+            while (rs.next()) {
+
+                for (String s: params) {
+                result += rs.getString(s)+" ";
+                }
+            }
+            stmt.close();
+
+       } catch (SQLException e) {
+            System.out.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+
+
+        return result;
     }
 
-    private List<String> processListOperation(String query) {
-        return null;
+    private List<String> processSelectListOperation(String query, String[] params) {
+        List<String> result = new ArrayList<String>();
+        Statement stmt = null;
+
+        try {
+
+            stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+
+            while (rs.next()) {
+                String str = "";
+
+                for (String s: params) {
+                    str += rs.getString(s)+" ";
+                }
+
+                result.add(str);
+            }
+            stmt.close();
+        } catch (SQLException e) {
+           System.out.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+
+        return result;
     }
 }

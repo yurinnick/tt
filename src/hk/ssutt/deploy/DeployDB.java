@@ -29,18 +29,18 @@ public class DeployDB {
     public DeployDB(String dbPath) {
         this.dbPath = dbPath;
 
+
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:" + dbPath + "/timetables.db");
+        } catch (Exception e) {
+            System.out.println(e.getClass().getName() + ": " + e.getMessage());
+            System.exit(1);
+        }
+
         //move to FS later!
         if (!(new File(dbPath +"/timetables.db").isFile())) {
             List<String[]> faculties = getFaculties();
-
-            try {
-                Class.forName("org.sqlite.JDBC");
-                c = DriverManager.getConnection("jdbc:sqlite:" + dbPath + "/timetables.db");
-            } catch (Exception e) {
-                System.out.println(e.getClass().getName() + ": " + e.getMessage());
-                System.exit(1);
-            }
-
             createILNtable(faculties);//id(knt,mm) + link (http://..) + name(CS&IT)
 
             for (String[] s : faculties) {
