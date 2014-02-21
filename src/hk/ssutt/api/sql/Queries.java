@@ -12,10 +12,18 @@ public abstract class Queries {
     //existence of both files
     private static String groupListOnFacultyQuery = "SELECT GRP FROM %s WHERE EVEN=1;";
 
-    private static String allFacultiesIDs = "SELECT ID FROM ILN;";
+    private static String allFacultiesIDsQuery = "SELECT ID FROM ILN;";
 
     // " are required for CHAR(6)
-    private static String facultyNameFromID = "SELECT NAME FROM ILN WHERE ID=\"%s\";";
+    private static String facultyNameFromIDQuery = "SELECT NAME FROM ILN WHERE ID=\"%s\";";
+    //once more - need only one!
+    private static String protectionByGroupIDQuery = "SELECT PROTECTED FROM %s WHERE GRP=%s AND EVEN=1;";
+
+    private static String protectedGroupsOnFacultyQuery = "SELECT GRP FROM %s WHERE EVEN=1 AND PROTECTED=1;";
+
+    private static String facultyWebAddressQuery = "SELECT LINK FROM ILN WHERE ID=\"%s\";";
+
+    private static String groupWebAddressQuery = "SELECT ESC FROM %s WHERE GRP=%s AND EVEN=1;";
 
     public static String getAllGroupsOnFacultyQuery() {
         return allGroupsOnFacultyQuery;
@@ -33,11 +41,27 @@ public abstract class Queries {
         return groupListOnFacultyQuery;
     }
 
-    public static String getAllFacultiesIDs() {
-        return allFacultiesIDs;
+    public static String getAllFacultiesIDsQuery() {
+        return allFacultiesIDsQuery;
     }
 
-    public static String getFacultyNameFromID() {
-        return facultyNameFromID;
+    public static String getFacultyNameFromIDQuery() {
+        return facultyNameFromIDQuery;
+    }
+
+    public static String getProtectionByGroupIDQuery() {
+        return protectionByGroupIDQuery;
+    }
+
+    public static String getProtectedGroupsOnFacultyQuery() {
+        return protectedGroupsOnFacultyQuery;
+    }
+
+    public static String getFacultyWebAddressQuery() {
+        return facultyWebAddressQuery;
+    }
+
+    public static String getGroupWebAddressQuery() {
+        return groupWebAddressQuery;
     }
 }

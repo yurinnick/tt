@@ -169,8 +169,7 @@ public class DeployDB {
         try {
             Statement stmt = c.createStatement();
             String sql = "CREATE TABLE " + faculty +
-                    " (ID INT NOT NULL, " +
-                    "GRP TEXT NOT NULL, " +
+                    "(GRP TEXT NOT NULL, " +
                     "ESC TEXT NOT NULL, " + //non-unescaped addresses (for groups like 141(1))
                     "EVEN INT NOT NULL, " + //sqlite has no boolean
                     "PATH TEXT NOT NULL, " +
@@ -181,12 +180,12 @@ public class DeployDB {
             int i = 1;
             for (String[] s : groups) {
                 stmt = c.createStatement();
-                String ssEven = String.format("INSERT INTO %s (ID, GRP, ESC, EVEN, PATH, PROTECTED) VALUES (%d, '%s', '%s', %d, '%s', %d);",
-                        faculty, i, s[0], s[1], (((i - 1) % 2) == 0) ? 1 : 0, dbPath + '/' + faculty + '/' + "even" + s[0] + ".xml", 0);
+                String ssEven = String.format("INSERT INTO %s (GRP, ESC, EVEN, PATH, PROTECTED) VALUES ('%s', '%s', %d, '%s', %d);",
+                        faculty, s[0], s[1], (((i - 1) % 2) == 0) ? 1 : 0, dbPath + '/' + faculty + '/' + "even" + s[0] + ".xml", 0);
                 stmt.executeUpdate(ssEven);
                 i++;
-                String ssOdd = String.format("INSERT INTO %s (ID, GRP, ESC, EVEN, PATH, PROTECTED) VALUES (%d, '%s', '%s', %d, '%s', %d);",
-                        faculty, i, s[0], s[1], (((i - 1) % 2) == 0) ? 1 : 0, dbPath + '/' + faculty + '/' + "odd" + s[0] + ".xml", 0);
+                String ssOdd = String.format("INSERT INTO %s (GRP, ESC, EVEN, PATH, PROTECTED) VALUES ('%s', '%s', %d, '%s', %d);",
+                        faculty, s[0], s[1], (((i - 1) % 2) == 0) ? 1 : 0, dbPath + '/' + faculty + '/' + "odd" + s[0] + ".xml", 0);
                 stmt.executeUpdate(ssOdd);
                 stmt.close();
                 i++;

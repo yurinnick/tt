@@ -5,7 +5,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by fau on 18/02/14.
@@ -47,36 +49,56 @@ public class SQLMethods {
     public List<String> getAllFacultiesIDs() {
         String[] params = {"ID"};
 
-        return processListOperation(Queries.getAllFacultiesIDs(),params);
+        return processListOperation(Queries.getAllFacultiesIDsQuery(),params);
     }
 
     public String getFacultyNameFromID(String facultyID) {
         String[] params = {"NAME"};
-        return processStringOperation(String.format(Queries.getFacultyNameFromID(),facultyID),params);
+        return processStringOperation(String.format(Queries.getFacultyNameFromIDQuery(), facultyID),params);
     }
-
 
 
     //protection queries
-    public String getProtectionByGroupIdentity(String faculty, String group) {
-       return null;
+    public String getProtectionByGroupID(String faculty, String group) {
+       String[] params = {"PROTECTED"};
+        return processStringOperation(String.format(Queries.getProtectionByGroupIDQuery(), faculty, group),params);
     }
 
     public List<String> getProtectedGroupsOnFaculty(String faculty) {
-        return null;
+        String[] params = {"GRP"};
+        return processListOperation(String.format(Queries.getProtectedGroupsOnFacultyQuery(), faculty),params);
     }
 
-    public List<String> getAllProtectedGroups() {
-        return null;
+    public Map<String,List<String>> getAllProtectedGroups() {
+        Map<String,List<String>> result = new HashMap<>();
+        List<String> faculties = getAllFacultiesIDs();
+
+        String[] params = {"GRP"};
+
+        for (String faculty: faculties) {
+            result.put(faculty,getProtectedGroupsOnFaculty(faculty));
+        }
+        return result;
     }
 
     //web addresses queries
     public String getFacultyWebAddress(String faculty) {
-        return null;
+        String[] params = {"LINK"};
+        return processStringOperation(String.format(Queries.getFacultyWebAddressQuery(), faculty), params);
     }
 
     public String getGroupWebAddress(String faculty, String group) {
-        return null;
+        String[] params = {"LINK"};
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(processStringOperation(String.format(Queries.getFacultyWebAddressQuery(), faculty), params));
+        
+        sb.append("/do/");
+
+        params = new String[]{"ESC"};
+        sb.append(processStringOperation(String.format(Queries.getGroupWebAddressQuery(), faculty, group), params));
+
+        return sb.toString();
     }
 
 

@@ -10,8 +10,7 @@ public class TestingMain {
         SQLDeploy sqld  = new SQLDeploy();
         SQLMethods sqlm = new SQLMethods(sqld.getDB());
 
-        System.out.println(sqlm.getAllFacultiesIDs());
-        System.out.println(sqlm.getFacultyNameFromID("gf"));
+        System.out.println(sqlm.getGroupWebAddress("knt","151"));
 
     }
 }
