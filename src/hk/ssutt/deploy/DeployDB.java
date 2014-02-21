@@ -29,17 +29,10 @@ public class DeployDB {
     public DeployDB(String dbPath) {
         this.dbPath = dbPath;
 
-
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:" + dbPath + "/timetables.db");
-        } catch (Exception e) {
-            System.out.println(e.getClass().getName() + ": " + e.getMessage());
-            System.exit(1);
-        }
-
         //move to FS later!
         if (!(new File(dbPath +"/timetables.db").isFile())) {
+            createConnection();
+
             List<String[]> faculties = getFaculties();
             createILNtable(faculties);//id(knt,mm) + link (http://..) + name(CS&IT)
 
@@ -50,10 +43,21 @@ public class DeployDB {
 
             createHeadsTable();
         }
+        else createConnection();
     }
 
     public static Connection getConnection() {
         return c;
+    }
+
+    private void createConnection() {
+    try {
+        Class.forName("org.sqlite.JDBC");
+        c = DriverManager.getConnection("jdbc:sqlite:" + dbPath + "/timetables.db");
+    } catch (Exception e) {
+        System.out.println(e.getClass().getName() + ": " + e.getMessage());
+        System.exit(1);
+    }
     }
 
     private List<String[]> getFaculties() {
@@ -111,19 +115,17 @@ public class DeployDB {
             Statement stmt = c.createStatement();
             String sql = "CREATE TABLE ILN " +
                     "(ID CHAR(6)     NOT NULL," +
-                    " NAME           TEXT    NOT NULL, " +
-                    " LINK           TEXT     NOT NULL); ";
+                    "LINK           TEXT     NOT NULL, " +
+                    "NAME           TEXT    NOT NULL);";
 
             stmt.executeUpdate(sql);
-            stmt.close();
 
             for (String[] elem : faculties) {
-                stmt = c.createStatement();
-                String s = String.format("INSERT INTO ILN (ID, NAME, LINK) VALUES ('%s','%s','%s');", elem[0], elem[1], elem[2]); // удобнее string.format юзать
+                String s = String.format("INSERT INTO ILN (ID, LINK, NAME) VALUES ('%s','%s','%s');", elem[0], elem[1], elem[2]); // удобнее string.format юзать
                 stmt.executeUpdate(s);
-                stmt.close();
-            }
 
+            }
+            stmt.close();
         } catch (SQLException e) {
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(3);

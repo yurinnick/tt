@@ -1,8 +1,5 @@
 package hk.ssutt.api.sql;
 
-import com.sun.source.tree.StatementTree;
-
-import javax.swing.plaf.nimbus.State;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,7 +12,6 @@ import java.util.List;
  */
 public class SQLMethods {
     private Connection connection = null;
-    private Queries q = new Queries();
 
     public SQLMethods(Connection connection) {
         this.connection = connection;
@@ -24,29 +20,41 @@ public class SQLMethods {
     //XML files queries
     //return path files per group on faculty (do we need Group entity?)
     public List<String> getAllGroupsOnFaculty(String faculty) {
-        List<String> result = new ArrayList<>();
-
         String[] params = {"PATH"};
 
-        return processSelectListOperation(String.format(q.getAllGroupsOnFacultyQuery(), faculty), params);
-    }
-
-    //same here
-    public List<String> getGroupListOnFaculty(String faculty, String group) {
-        return null;
-    }
-
-    public List<String> getFacultyNameFromID(String faculty) {
-        return null;
-    }
-
-    public String getOddTT(String faculty, String group) {
-        return null;
+        return processListOperation(String.format(Queries.getAllGroupsOnFacultyQuery(), faculty), params);
     }
 
     public String getEvenTT(String faculty, String group) {
-        return null;
+        String[] params = {"PATH"};
+
+        return processStringOperation(String.format(Queries.getEvenTTQuery(), faculty, group), params);
     }
+
+    public String getOddTT(String faculty, String group) {
+        String[] params = {"PATH"};
+
+        return processStringOperation(String.format(Queries.getOddTTQuery(), faculty, group), params);
+    }
+
+    //just ids
+    public List<String> getGroupListOnFaculty(String faculty) {
+        String[] params = {"GRP"};
+
+        return processListOperation(String.format(Queries.getGroupListOnFacultyQuery(), faculty), params);
+    }
+
+    public List<String> getAllFacultiesIDs() {
+        String[] params = {"ID"};
+
+        return processListOperation(Queries.getAllFacultiesIDs(),params);
+    }
+
+    public String getFacultyNameFromID(String facultyID) {
+        String[] params = {"NAME"};
+        return processStringOperation(String.format(Queries.getFacultyNameFromID(),facultyID),params);
+    }
+
 
 
     //protection queries
@@ -73,7 +81,7 @@ public class SQLMethods {
 
 
 
-    private String processSelectStringOperation(String query, String[] params) {
+    private String processStringOperation(String query, String[] params) {
         String result = "";
         Statement stmt = null;
 
@@ -98,7 +106,7 @@ public class SQLMethods {
         return result;
     }
 
-    private List<String> processSelectListOperation(String query, String[] params) {
+    private List<String> processListOperation(String query, String[] params) {
         List<String> result = new ArrayList<String>();
         Statement stmt = null;
 
@@ -111,7 +119,8 @@ public class SQLMethods {
                 String str = "";
 
                 for (String s: params) {
-                    str += rs.getString(s)+" ";
+                    str += rs.getString(s);
+                    if (params.length>1) str += " ";
                 }
 
                 result.add(str);
