@@ -9,9 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by fau on 18/02/14.
- */
 public class SQLMethods {
     private Connection connection = null;
 
@@ -49,34 +46,34 @@ public class SQLMethods {
     public List<String> getAllFacultiesIDs() {
         String[] params = {"ID"};
 
-        return processListOperation(Queries.getAllFacultiesIDsQuery(),params);
+        return processListOperation(Queries.getAllFacultiesIDsQuery(), params);
     }
 
     public String getFacultyNameFromID(String facultyID) {
         String[] params = {"NAME"};
-        return processStringOperation(String.format(Queries.getFacultyNameFromIDQuery(), facultyID),params);
+        return processStringOperation(String.format(Queries.getFacultyNameFromIDQuery(), facultyID), params);
     }
 
 
     //protection queries
     public String getProtectionByGroupID(String faculty, String group) {
-       String[] params = {"PROTECTED"};
-        return processStringOperation(String.format(Queries.getProtectionByGroupIDQuery(), faculty, group),params);
+        String[] params = {"PROTECTED"};
+        return processStringOperation(String.format(Queries.getProtectionByGroupIDQuery(), faculty, group), params);
     }
 
     public List<String> getProtectedGroupsOnFaculty(String faculty) {
         String[] params = {"GRP"};
-        return processListOperation(String.format(Queries.getProtectedGroupsOnFacultyQuery(), faculty),params);
+        return processListOperation(String.format(Queries.getProtectedGroupsOnFacultyQuery(), faculty), params);
     }
 
-    public Map<String,List<String>> getAllProtectedGroups() {
-        Map<String,List<String>> result = new HashMap<>();
+    public Map<String, List<String>> getAllProtectedGroups() {
+        Map<String, List<String>> result = new HashMap<>();
         List<String> faculties = getAllFacultiesIDs();
 
         String[] params = {"GRP"};
 
-        for (String faculty: faculties) {
-            result.put(faculty,getProtectedGroupsOnFaculty(faculty));
+        for (String faculty : faculties) {
+            result.put(faculty, getProtectedGroupsOnFaculty(faculty));
         }
         return result;
     }
@@ -92,7 +89,7 @@ public class SQLMethods {
         StringBuilder sb = new StringBuilder();
 
         sb.append(processStringOperation(String.format(Queries.getFacultyWebAddressQuery(), faculty), params));
-        
+
         sb.append("/do/");
 
         params = new String[]{"ESC"};
@@ -100,8 +97,6 @@ public class SQLMethods {
 
         return sb.toString();
     }
-
-
 
     private String processStringOperation(String query, String[] params) {
         String result = "";
@@ -114,13 +109,13 @@ public class SQLMethods {
 
             while (rs.next()) {
 
-                for (String s: params) {
-                result += rs.getString(s)+" ";
+                for (String s : params) {
+                    result += rs.getString(s) + " ";
                 }
             }
             stmt.close();
 
-       } catch (SQLException e) {
+        } catch (SQLException e) {
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
         }
 
@@ -140,16 +135,16 @@ public class SQLMethods {
             while (rs.next()) {
                 String str = "";
 
-                for (String s: params) {
+                for (String s : params) {
                     str += rs.getString(s);
-                    if (params.length>1) str += " ";
+                    if (params.length > 1) str += " ";
                 }
 
                 result.add(str);
             }
             stmt.close();
         } catch (SQLException e) {
-           System.out.println(e.getClass().getName() + ": " + e.getMessage());
+            System.out.println(e.getClass().getName() + ": " + e.getMessage());
         }
 
         return result;

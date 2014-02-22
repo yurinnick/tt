@@ -7,16 +7,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.*;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
-
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +27,7 @@ public class DeployDB {
         this.dbPath = dbPath;
 
         //move to FS later!
-        if (!(new File(dbPath +"/timetables.db").isFile())) {
+        if (!(new File(dbPath + "/timetables.db").isFile())) {
             createConnection();
 
             List<String[]> faculties = getFaculties();
@@ -42,8 +39,7 @@ public class DeployDB {
             }
 
             createHeadsTable();
-        }
-        else createConnection();
+        } else createConnection();
     }
 
     public static Connection getConnection() {
@@ -51,13 +47,13 @@ public class DeployDB {
     }
 
     private void createConnection() {
-    try {
-        Class.forName("org.sqlite.JDBC");
-        c = DriverManager.getConnection("jdbc:sqlite:" + dbPath + "/timetables.db");
-    } catch (Exception e) {
-        System.out.println(e.getClass().getName() + ": " + e.getMessage());
-        System.exit(1);
-    }
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:" + dbPath + "/timetables.db");
+        } catch (Exception e) {
+            System.out.println(e.getClass().getName() + ": " + e.getMessage());
+            System.exit(1);
+        }
     }
 
     private List<String[]> getFaculties() {

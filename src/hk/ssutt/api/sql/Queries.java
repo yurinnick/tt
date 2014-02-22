@@ -1,9 +1,10 @@
 package hk.ssutt.api.sql;
 
 public abstract class Queries {
-    /**Church of Good Design doesn't allow me too many various variable strings
-    * in the SQLMethods class, so here most of them
-    */
+    /**
+     * Church of Good Design doesn't allow me too many various variable strings
+     * in the SQLMethods class, so here most of them
+     */
     private static String allGroupsOnFacultyQuery = "SELECT PATH FROM %s;";
     private static String evenTTQuery = "SELECT PATH FROM %s WHERE GRP=%s AND EVEN=1;";
     private static String oddTTQuery = "SELECT PATH FROM %s WHERE GRP=%s AND EVEN=0;";

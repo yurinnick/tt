@@ -19,7 +19,7 @@ public class SQLDeploy {
             System.out.println("Database was deployed before.");
     }
 
-    public  Connection getDB() {
+    public Connection getDB() {
         return d.getConnection();
     }
 }
