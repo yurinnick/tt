@@ -1,6 +1,8 @@
 package hk.ssutt.deploy;
 
 
+import com.sun.corba.se.spi.orbutil.fsm.FSM;
+import hk.ssutt.api.fs.FSMethods;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -43,8 +45,8 @@ public class DeployDB {
     }
 
     //database can exist, but in this case it stays uninitialized
-    public DeployDB(FSDeploy fsd) {
-        dbPath = fsd.getTTDirPath();
+    public DeployDB(FSMethods fsm) {
+        dbPath = fsm.getTTDirPath();
     }
 
     public static Connection getConnection() {
@@ -180,20 +182,22 @@ public class DeployDB {
                     "PROTECTED INT NOT NULL);";
 
             stmt.executeUpdate(sql);
-            stmt.close();
-            int i = 1;
+
+            String dir = dbPath.replaceAll("timetables.db","");
+            int i=1; //used to differ even and odd TTs
             for (String[] s : groups) {
-                stmt = c.createStatement();
+
                 String ssEven = String.format("INSERT INTO %s (GRP, ESC, EVEN, PATH, PROTECTED) VALUES ('%s', '%s', %d, '%s', %d);",
-                        faculty, s[0], s[1], (((i - 1) % 2) == 0) ? 1 : 0, dbPath + '/' + faculty + '/' + s[0] + '/' + "even" + s[0] + ".xml", 0);
+                        faculty, s[0], s[1], (((i - 1) % 2) == 0) ? 1 : 0, dir + faculty + '/' + s[0] + '/' + "even" + s[0] + ".xml", 0);
                 stmt.executeUpdate(ssEven);
                 i++;
                 String ssOdd = String.format("INSERT INTO %s (GRP, ESC, EVEN, PATH, PROTECTED) VALUES ('%s', '%s', %d, '%s', %d);",
-                        faculty, s[0], s[1], (((i - 1) % 2) == 0) ? 1 : 0, dbPath + '/' + faculty + '/' + s[0] + '/' + "odd" + s[0] + ".xml", 0);
+                        faculty, s[0], s[1], (((i - 1) % 2) == 0) ? 1 : 0, dir + faculty + '/' + s[0] + '/' + "odd" + s[0] + ".xml", 0);
                 stmt.executeUpdate(ssOdd);
-                stmt.close();
+
                 i++;
             }
+            stmt.close();
 
         } catch (SQLException e) {
             System.out.println(e.getClass().getName() + ": " + e.getMessage());

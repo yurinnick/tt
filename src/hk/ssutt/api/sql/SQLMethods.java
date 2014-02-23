@@ -10,21 +10,22 @@ import java.util.List;
 import java.util.Map;
 
 public class SQLMethods {
-    private Connection connection;
+    private static Connection connection;
     private static SQLMethods sqlm;
 
     private SQLMethods() {
     }
 
-    public static SQLMethods getInstance() {
+    public static SQLMethods getInstance(Connection c) {
         if (sqlm == null) {
             sqlm = new SQLMethods();
         }
+        setConnection(c);
         return sqlm;
     }
 
-    public void setConnection(Connection connection) {
-        this.connection = connection;
+    private static void setConnection(Connection c) {
+        connection = c;
     }
 
     //XML files queries
