@@ -1,13 +1,15 @@
 package hk.ssutt.testing;
 
 import hk.ssutt.api.sql.SQLMethods;
-import hk.ssutt.deploy.SQLDeploy;
+import hk.ssutt.deploy.DeploySSUTT;
 
 public class TestingMain {
     public static void main(String[] args) {
-        SQLDeploy sqld  = new SQLDeploy();
-        SQLMethods sqlm = new SQLMethods(sqld.getDB());
+        DeploySSUTT d = DeploySSUTT.getInstance();
+        SQLMethods sqlm = SQLMethods.getInstance();
 
-        System.out.println(sqlm.getGroupWebAddress("knt","151"));
+        //PLEASSE DON'T FORGET TO CREATE CONNECTION
+        sqlm.setConnection(d.getDBConnection());
+        System.out.println(sqlm.getAllFacultiesIDs());
     }
 }

@@ -10,9 +10,20 @@ import java.util.List;
 import java.util.Map;
 
 public class SQLMethods {
-    private Connection connection = null;
+    private Connection connection;
+    private static SQLMethods sqlm;
 
-    public SQLMethods(Connection connection) {
+    private SQLMethods() {
+    }
+
+    public static SQLMethods getInstance() {
+        if (sqlm == null) {
+            sqlm = new SQLMethods();
+        }
+        return sqlm;
+    }
+
+    public void setConnection(Connection connection) {
         this.connection = connection;
     }
 
@@ -81,14 +92,14 @@ public class SQLMethods {
     //web addresses queries
     public String getFacultyWebAddress(String faculty) {
         String[] params = {"LINK"};
-        return processStringOperation(String.format(Queries.getFacultyWebAddressQuery(), faculty), params);
+        return processStringOperation(String.format(Queries.getFacultyWebAddressQuery(), faculty), params).trim();
     }
 
     public String getGroupWebAddress(String faculty, String group) {
         String[] params = {"LINK"};
         StringBuilder sb = new StringBuilder();
 
-        sb.append(processStringOperation(String.format(Queries.getFacultyWebAddressQuery(), faculty), params));
+        sb.append(processStringOperation(String.format(Queries.getFacultyWebAddressQuery(), faculty), params).trim());
 
         sb.append("/do/");
 

@@ -6,7 +6,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,30 +29,35 @@ public class DeployDB {
     public DeployDB(String dbPath) {
         this.dbPath = dbPath;
 
-        //move to FS later!
-        if (!(new File(dbPath + "/timetables.db").isFile())) {
-            createConnection();
+        createConnection();
 
-            List<String[]> faculties = getFaculties();
-            createILNtable(faculties);//id(knt,mm) + link (http://..) + name(CS&IT)
+        List<String[]> faculties = getFaculties();
+        createILNtable(faculties);//id(knt,mm) + link (http://..) + name(CS&IT)
 
-            for (String[] s : faculties) {
-                List<String[]> groups = getGroups(s[1], s[0]);
-                createFacultyTable(s[0], groups);
-            }
+        for (String[] s : faculties) {
+            List<String[]> groups = getGroups(s[1], s[0]);
+            createFacultyTable(s[0], groups);
+        }
 
-            createHeadsTable();
-        } else createConnection();
+        createHeadsTable();
+    }
+
+    //database can exist, but in this case it stays uninitialized
+    public DeployDB(FSDeploy fsd) {
+        dbPath = fsd.getTTDirPath();
     }
 
     public static Connection getConnection() {
+        if (c == null)
+            createConnection();
         return c;
     }
 
-    private void createConnection() {
+    private static void createConnection() {
         try {
             Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:" + dbPath + "/timetables.db");
+
+            c = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
         } catch (Exception e) {
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(1);
@@ -177,11 +185,11 @@ public class DeployDB {
             for (String[] s : groups) {
                 stmt = c.createStatement();
                 String ssEven = String.format("INSERT INTO %s (GRP, ESC, EVEN, PATH, PROTECTED) VALUES ('%s', '%s', %d, '%s', %d);",
-                        faculty, s[0], s[1], (((i - 1) % 2) == 0) ? 1 : 0, dbPath + '/' + faculty + '/' + "even" + s[0] + ".xml", 0);
+                        faculty, s[0], s[1], (((i - 1) % 2) == 0) ? 1 : 0, dbPath + '/' + faculty + '/' + s[0] + '/' + "even" + s[0] + ".xml", 0);
                 stmt.executeUpdate(ssEven);
                 i++;
                 String ssOdd = String.format("INSERT INTO %s (GRP, ESC, EVEN, PATH, PROTECTED) VALUES ('%s', '%s', %d, '%s', %d);",
-                        faculty, s[0], s[1], (((i - 1) % 2) == 0) ? 1 : 0, dbPath + '/' + faculty + '/' + "odd" + s[0] + ".xml", 0);
+                        faculty, s[0], s[1], (((i - 1) % 2) == 0) ? 1 : 0, dbPath + '/' + faculty + '/' + s[0] + '/' + "odd" + s[0] + ".xml", 0);
                 stmt.executeUpdate(ssOdd);
                 stmt.close();
                 i++;
