@@ -1,4 +1,4 @@
-package hk.ssutt.api.xml;
+package hk.ssutt.api.xml.main;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

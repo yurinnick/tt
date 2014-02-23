@@ -1,4 +1,4 @@
-package hk.ssutt.api.vk_wiki_markup;
+package hk.ssutt.api.xml.vk;
 
 import javax.naming.OperationNotSupportedException;
 
