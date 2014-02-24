@@ -1,3 +1,5 @@
+package hk.ssutt.testing;
+
 import hk.ssutt.deploy.DeploySSUTT;
 
 public class TestingMain {
