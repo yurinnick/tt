@@ -10,8 +10,10 @@ public class FSAdminOperations {
     }
 
     public static FSAdminOperations getInstance() {
-        if (fsao == null)
+        if (fsao == null) {
             fsao = new FSAdminOperations();
+        }
+
         return fsao;
     }
 }

@@ -1,4 +1,4 @@
-package hk.ssutt.api.xml.main;
+package hk.ssutt.api.parsing.xml.main;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -17,11 +17,8 @@ import java.io.IOException;
 
 public class DOMParser {
 	private static DOMParser parser;
-	private File file;
-	private String path;
 
-	private DOMParser() {
-	}
+	private DOMParser() {}
 
 	public static DOMParser getInstance() {
 		if (parser == null) {

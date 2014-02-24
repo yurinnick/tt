@@ -12,6 +12,7 @@ import java.util.List;
 public abstract class DeployXML {
     public static void deploy(SQLMethods sqlm) {
         long start = System.currentTimeMillis();
+
         FSMethods fsm = FSMethods.getInstance();
 
         List<String> faculties = sqlm.getAllFacultiesIDs();
@@ -21,9 +22,9 @@ public abstract class DeployXML {
                 fsm.touch(new File(g));
             }
         }
-        long end = System.currentTimeMillis();
-        long deployTime = (end - start) / 1_000;
 
-        System.out.println("XML deployed in: " + deployTime + " sec");
+        double time = (System.currentTimeMillis() - start) / 1000.0;
+
+        System.out.println("XML deployed in: " + time + " sec");
     }
 }

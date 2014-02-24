@@ -31,12 +31,13 @@ public class DeployFS {
 
         for (String s : faculties) {
             List<String> groups = sqlm.getGroupListOnFaculty(s);
-            for (String g : groups) new File("timetables/" + s + "/" + g).mkdirs();
+            for (String g : groups) {
+	            new File("timetables/" + s + "/" + g).mkdirs();
+            }
         }
-        long end = System.currentTimeMillis();
-        long deployTime = (end - start) / 1_000;
 
-        System.out.println("FileSystem deployed in: " + deployTime + " sec");
+        double time = (System.currentTimeMillis() - start) / 1000.0;
+        System.out.println("FileSystem deployed in: " + time + " sec");
     }
 
     public static String getTtDir() {
