@@ -31,85 +31,106 @@ public class SQLMethods {
 
 	//XML files queries
 	//return path files per group on faculty (do we need Group entity?)
-	public List<String> getAllGroupsOnFaculty(String faculty) {
+	public List<String> getAllGroupsFilesOnFaculty(String faculty) {
 		String[] params = {"PATH"};
 
-		return processListOperation(String.format(Queries.allGroupsOnFaculty, faculty), params);
+		return pullListOperation(String.format(Queries.allGroupsOnFaculty, faculty), params);
 	}
 
 	public String getEvenTT(String faculty, String group) {
 		String[] params = {"PATH"};
 
-		return processStringOperation(String.format(Queries.evenTT, faculty, group), params);
+		return pullStringOperation(String.format(Queries.evenTT, faculty, group), params);
 	}
 
 	public String getOddTT(String faculty, String group) {
 		String[] params = {"PATH"};
 
-		return processStringOperation(String.format(Queries.oddTT, faculty, group), params);
+		return pullStringOperation(String.format(Queries.oddTT, faculty, group), params);
 	}
 
 	//just ids
-	public List<String> getGroupListOnFaculty(String faculty) {
+	public List<String> getGroupIDListOnFaculty(String faculty) {
 		String[] params = {"GRP"};
 
-		return processListOperation(String.format(Queries.groupListOnFaculty, faculty), params);
+		return pullListOperation(String.format(Queries.groupListOnFaculty, faculty), params);
 	}
 
 	public List<String> getAllFacultiesIDs() {
 		String[] params = {"ID"};
 
-		return processListOperation(Queries.allFacultiesIDs, params);
+		return pullListOperation(Queries.allFacultiesIDs, params);
 	}
 
 	public String getFacultyNameFromID(String facultyID) {
 		String[] params = {"NAME"};
-		return processStringOperation(String.format(Queries.facultyNameFromID, facultyID), params);
-	}
-
-
-	//protection queries
-	public String getProtectionByGroupID(String faculty, String group) {
-		String[] params = {"PROTECTED"};
-		return processStringOperation(String.format(Queries.protectionByGroupID, faculty, group), params);
-	}
-
-	public List<String> getProtectedGroupsOnFaculty(String faculty) {
-		String[] params = {"GRP"};
-		return processListOperation(String.format(Queries.protectedGroupsOnFaculty, faculty), params);
-	}
-
-	public Map<String, List<String>> getAllProtectedGroups() {
-		Map<String, List<String>> result = new HashMap<>();
-		List<String> faculties = getAllFacultiesIDs();
-
-		String[] params = {"GRP"};
-		for (String faculty : faculties) {
-			result.put(faculty, getProtectedGroupsOnFaculty(faculty));
-		}
-		return result;
+		return pullStringOperation(String.format(Queries.facultyNameFromID, facultyID), params);
 	}
 
 	//web addresses queries
 	public String getFacultyWebAddress(String faculty) {
 		String[] params = {"LINK"};
-		return processStringOperation(String.format(Queries.facultyWebAddress, faculty), params).trim();
+		return pullStringOperation(String.format(Queries.facultyWebAddress, faculty), params).trim();
 	}
 
 	public String getGroupWebAddress(String faculty, String group) {
 		String[] params = {"LINK"};
 		StringBuilder sb = new StringBuilder();
 
-		sb.append(processStringOperation(String.format(Queries.facultyWebAddress, faculty), params).trim());
+		sb.append(pullStringOperation(String.format(Queries.facultyWebAddress, faculty), params).trim());
 		sb.append("/do/");
 
 		params = new String[]{"ESC"};
-		sb.append(processStringOperation(String.format(Queries.groupWebAddress, faculty, group), params));
+		sb.append(pullStringOperation(String.format(Queries.groupWebAddress, faculty, group), params));
 
 		return sb.toString();
 	}
 
-	private String processStringOperation(String query, String[] params) {
+    public boolean setProtectedState(String faculty, String group, int state) {
+        return pushOperation(String.format(Queries.setGroupProtected, faculty, state,group));
+    }
+
+    //protection queries
+    public boolean dropFacultyProtectedState(String faculty) {
+        List<String> groups = getGroupIDListOnFaculty(faculty);
+        System.out.println(groups);
+        for (String grp: groups){
+            System.out.println(grp);
+            if (!(setProtectedState(faculty,grp,0)))
+                return false;
+        }
+        return true;
+    }
+
+    public boolean dropAllFacultiesProtectedState() {
+        List<String> faculties = getAllFacultiesIDs();
+        for (String fac: faculties) {
+            System.out.println(fac);
+            if (!(dropFacultyProtectedState(fac)))
+                return false;
+        }
+        return true;
+    }
+
+
+    public List<String> getProtectedGroupsOnFaculty(String faculty) {
+        String[] params = {"GRP"};
+        return pullListOperation(String.format(Queries.protectedGroupsOnFaculty, faculty), params);
+    }
+
+    public Map<String,List<String>> getAllProtectedGroups() {
+        Map <String,List<String>> result = new HashMap<>();
+
+
+        List<String> faculties = getAllFacultiesIDs();
+        for (String fac: faculties) {
+            result.put(fac,getProtectedGroupsOnFaculty(fac));
+        }
+        return result;
+    }
+
+
+	private String pullStringOperation(String query, String[] params) {
 		StringBuilder result = new StringBuilder();
 
 		try (Statement stmt = connection.createStatement();){
@@ -126,10 +147,10 @@ public class SQLMethods {
 			System.out.println(e.getClass().getName() + ": " + e.getMessage());
 		}
 
-		return result.toString();
+		return result.toString().trim();
 	}
 
-	private List<String> processListOperation(String query, String[] params) {
+	private List<String> pullListOperation(String query, String[] params) {
 		List<String> result = new ArrayList<>();
 
 		try (Statement stmt = connection.createStatement()){
@@ -146,7 +167,7 @@ public class SQLMethods {
 					}
 				}
 
-				result.add(str.toString());
+				result.add(str.toString().trim());
 			}
 		} catch (SQLException e) {
 			System.out.println(e.getClass().getName() + ": " + e.getMessage());
@@ -154,4 +175,16 @@ public class SQLMethods {
 
 		return result;
 	}
+
+
+    private boolean pushOperation(String query) {
+        try (Statement stmt = connection.createStatement();) {
+            stmt.executeUpdate(query);
+            stmt.close();
+        } catch(SQLException e) {
+            System.out.println(e.getClass().getName() + ": "+ e.getMessage());
+            return false;
+        }
+        return true;
+    }
 }

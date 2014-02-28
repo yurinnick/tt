@@ -40,10 +40,13 @@ public class DeploySSUTT {
 			DeployXML.deploy(SQLMethods.getInstance(DeployDB.getConnection()));
 		} else {
 			System.out.println("TT was deployed before.");
+            d = new DeployDB(fsm);
 		}
-
-		d = new DeployDB(fsm);
 	}
+
+    public DeployDB getDeployDB() {
+        return d;
+    }
 
 }
 
