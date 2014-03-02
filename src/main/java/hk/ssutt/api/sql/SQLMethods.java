@@ -1,5 +1,9 @@
 package hk.ssutt.api.sql;
 
+import hk.ssutt.api.admin.PasswordHandler;
+
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -129,6 +133,32 @@ public class SQLMethods {
         return result;
     }
 
+    //HEADS operaions
+    public boolean addHead(String name, String password, String faculty, String group) {
+        PasswordHandler pwh = PasswordHandler.getInstance();
+        if (groupOnFacultyExists(faculty,group)) {
+            try {
+                password = pwh.encrypt(password);
+            } catch (GeneralSecurityException e) {
+                e.printStackTrace();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            return pushOperation(String.format(Queries.addHead,name,password,faculty,group));
+        }
+        return false;
+    }
+
+    private boolean groupOnFacultyExists(String faculty, String group) {
+        List<String> faculties = getAllFacultiesIDs();
+        if (faculties.contains(faculty)) {
+            List<String> groups = getAllGroupsFilesOnFaculty(faculty);
+
+            if (groups.contains(group))
+                return true;
+        }
+        return false;
+    }
 
 	private String pullStringOperation(String query, String[] params) {
 		StringBuilder result = new StringBuilder();

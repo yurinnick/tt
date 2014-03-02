@@ -205,7 +205,7 @@ public class DeployDB {
 		try {
 			Statement stmt = c.createStatement();
 			String sql = "CREATE TABLE HEADS" +
-					" (ID INT NOT NULL, " +
+					" (" +
 					"USERNAME TEXT NOT NULL, " +
 					"SALTEDPASS TEXT NOT NULL, " +
 					"FACULTY TEXT NOT NULL, " +

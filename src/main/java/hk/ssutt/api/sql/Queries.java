@@ -25,4 +25,7 @@ public abstract class Queries {
 	public static final String groupWebAddress = "SELECT ESC FROM %s WHERE GRP=%s AND EVEN=1;";
 
     public static final String setGroupProtected = "UPDATE %s SET PROTECTED=%d WHERE GRP=\"%s\"";
+
+    //admin operations
+    public static final String addHead = "INSERT INTO HEADS(ID,USERNAME,SALTEDPASS.FACULTY,GRP) VALUES(%d,'%s','%s','%s','%s');";
 }
