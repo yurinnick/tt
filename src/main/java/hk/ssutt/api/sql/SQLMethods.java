@@ -162,6 +162,40 @@ public class SQLMethods {
         return new User(info.split("\\s+")[0], info.split("\\s+")[1]);
     }
 
+    public void transferHeadsOnFaculty(String faculty) {
+        List<String> groups = getGroupIDListOnFaculty(faculty);
+
+        for (String group: groups) {
+            //avoid non-managed groups
+            if (headOnFacultyRegistered(faculty, group)){
+                //avoid the 4th, 5th years or masters
+                //or non-numerical things
+                makeTransfer(faculty, group);
+            }
+        }
+    }
+
+    private void makeTransfer(String faculty, String firstGroup) {
+        if (groupOnFacultyExists(faculty, firstGroup)) {
+            /*
+            for fuck's sake, if there where no social science students
+            and some strange guys who don't like numbers
+            it was much much easier
+            I just can't stand all of you
+            by fau when writing this code
+            */
+            int group = Integer.parseInt(firstGroup);
+            group += 100;
+            String elderGroup = String.valueOf(group);
+            if (groupOnFacultyExists(faculty, elderGroup)) {
+                User u = getHead(faculty, firstGroup);
+                pushOperation(String.format(Queries.transferHead, u.getName(), u.getPassword(), faculty, elderGroup));
+                if (group/100==1)
+                dropHead(faculty,firstGroup);
+            }
+        }
+    }
+
     private boolean groupOnFacultyExists(String faculty, String group) {
         List<String> faculties = getAllFacultiesIDs();
         if (faculties.contains(faculty)) {

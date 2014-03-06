@@ -15,10 +15,7 @@ public class TestingMain {
 	    d.deploy();
         DeployDB db = d.getDeployDB();
         SQLMethods sqlm = SQLMethods.getInstance(db.getConnection());
-        System.out.println(sqlm.addHead("yoba","pass","knt","151"));
-        User u = sqlm.getHead("knt", "151");
-        System.out.println(u.getName());
-        System.out.println(u.getPassword());
-        
+        sqlm.addHead("yoba","pssh","knt","151");
+        sqlm.transferHeadsOnFaculty("knt");
     }
 }

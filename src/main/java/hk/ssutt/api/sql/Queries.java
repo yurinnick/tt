@@ -34,4 +34,6 @@ public abstract class Queries {
     public static final String deleteHead = "DELETE FROM HEADS WHERE FACULTY='%s' AND GRP='%s';";
 
     public static final String getHead = "SELECT USERNAME, SALTEDPASS FROM HEADS WHERE FACULTY='%s' AND GRP='%s'";
+
+    public static final String transferHead = "UPDATE HEADS SET USERNAME='%s', SALTEDPASS='%s' WHERE FACULTY='%s' and GRP='%s'";
 }
