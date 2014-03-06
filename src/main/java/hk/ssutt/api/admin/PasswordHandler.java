@@ -33,7 +33,7 @@ public class PasswordHandler {
 
     public static PasswordHandler getInstance() {
         if (psh == null) {
-            Path file = Paths.get("./master");
+            Path file = Paths.get("./.master");
             BufferedReader reader = null;
             try {
                 reader = Files.newBufferedReader(file, Charset.defaultCharset());

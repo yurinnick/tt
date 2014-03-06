@@ -27,5 +27,11 @@ public abstract class Queries {
     public static final String setGroupProtected = "UPDATE %s SET PROTECTED=%d WHERE GRP=\"%s\"";
 
     //admin operations
-    public static final String addHead = "INSERT INTO HEADS(ID,USERNAME,SALTEDPASS.FACULTY,GRP) VALUES(%d,'%s','%s','%s','%s');";
+    public static final String addHead = "INSERT INTO HEADS(USERNAME,SALTEDPASS,FACULTY,GRP) VALUES('%s','%s','%s','%s');";
+
+    public static final String headOfGroupExists =  "SELECT * FROM HEADS WHERE FACULTY='%s' AND GRP='%s';";
+
+    public static final String deleteHead = "DELETE FROM HEADS WHERE FACULTY='%s' AND GRP='%s';";
+
+    public static final String getHead = "SELECT USERNAME, SALTEDPASS FROM HEADS WHERE FACULTY='%s' AND GRP='%s'";
 }

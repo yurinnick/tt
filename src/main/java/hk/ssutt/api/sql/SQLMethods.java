@@ -1,6 +1,7 @@
 package hk.ssutt.api.sql;
 
 import hk.ssutt.api.admin.PasswordHandler;
+import hk.ssutt.api.admin.User;
 
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
@@ -14,93 +15,93 @@ import java.util.List;
 import java.util.Map;
 
 public class SQLMethods {
-	private static Connection connection;
-	private static SQLMethods sqlm;
+    private static Connection connection;
+    private static SQLMethods sqlm;
 
-	private SQLMethods() {
-	}
+    private SQLMethods() {
+    }
 
-	public static SQLMethods getInstance(Connection c) {
-		if (sqlm == null) {
-			sqlm = new SQLMethods();
-		}
+    public static SQLMethods getInstance(Connection c) {
+        if (sqlm == null) {
+            sqlm = new SQLMethods();
+        }
 
-		setConnection(c);
-		return sqlm;
-	}
+        setConnection(c);
+        return sqlm;
+    }
 
-	private static void setConnection(Connection c) {
-		connection = c;
-	}
+    private static void setConnection(Connection c) {
+        connection = c;
+    }
 
-	//XML files queries
-	//return path files per group on faculty (do we need Group entity?)
-	public List<String> getAllGroupsFilesOnFaculty(String faculty) {
-		String[] params = {"PATH"};
+    //XML files queries
+    //return path files per group on faculty (do we need Group entity?)
+    public List<String> getAllGroupsFilesOnFaculty(String faculty) {
+        String[] params = {"PATH"};
 
-		return pullListOperation(String.format(Queries.allGroupsOnFaculty, faculty), params);
-	}
+        return pullListOperation(String.format(Queries.allGroupsOnFaculty, faculty), params);
+    }
 
-	public String getEvenTT(String faculty, String group) {
-		String[] params = {"PATH"};
+    public String getEvenTT(String faculty, String group) {
+        String[] params = {"PATH"};
 
-		return pullStringOperation(String.format(Queries.evenTT, faculty, group), params);
-	}
+        return pullStringOperation(String.format(Queries.evenTT, faculty, group), params);
+    }
 
-	public String getOddTT(String faculty, String group) {
-		String[] params = {"PATH"};
+    public String getOddTT(String faculty, String group) {
+        String[] params = {"PATH"};
 
-		return pullStringOperation(String.format(Queries.oddTT, faculty, group), params);
-	}
+        return pullStringOperation(String.format(Queries.oddTT, faculty, group), params);
+    }
 
-	//just ids
-	public List<String> getGroupIDListOnFaculty(String faculty) {
-		String[] params = {"GRP"};
+    //just ids
+    public List<String> getGroupIDListOnFaculty(String faculty) {
+        String[] params = {"GRP"};
 
-		return pullListOperation(String.format(Queries.groupListOnFaculty, faculty), params);
-	}
+        return pullListOperation(String.format(Queries.groupListOnFaculty, faculty), params);
+    }
 
-	public List<String> getAllFacultiesIDs() {
-		String[] params = {"ID"};
+    public List<String> getAllFacultiesIDs() {
+        String[] params = {"ID"};
 
-		return pullListOperation(Queries.allFacultiesIDs, params);
-	}
+        return pullListOperation(Queries.allFacultiesIDs, params);
+    }
 
-	public String getFacultyNameFromID(String facultyID) {
-		String[] params = {"NAME"};
-		return pullStringOperation(String.format(Queries.facultyNameFromID, facultyID), params);
-	}
+    public String getFacultyNameFromID(String facultyID) {
+        String[] params = {"NAME"};
+        return pullStringOperation(String.format(Queries.facultyNameFromID, facultyID), params);
+    }
 
-	//web addresses queries
-	public String getFacultyWebAddress(String faculty) {
-		String[] params = {"LINK"};
-		return pullStringOperation(String.format(Queries.facultyWebAddress, faculty), params).trim();
-	}
+    //web addresses queries
+    public String getFacultyWebAddress(String faculty) {
+        String[] params = {"LINK"};
+        return pullStringOperation(String.format(Queries.facultyWebAddress, faculty), params).trim();
+    }
 
-	public String getGroupWebAddress(String faculty, String group) {
-		String[] params = {"LINK"};
-		StringBuilder sb = new StringBuilder();
+    public String getGroupWebAddress(String faculty, String group) {
+        String[] params = {"LINK"};
+        StringBuilder sb = new StringBuilder();
 
-		sb.append(pullStringOperation(String.format(Queries.facultyWebAddress, faculty), params).trim());
-		sb.append("/do/");
+        sb.append(pullStringOperation(String.format(Queries.facultyWebAddress, faculty), params).trim());
+        sb.append("/do/");
 
-		params = new String[]{"ESC"};
-		sb.append(pullStringOperation(String.format(Queries.groupWebAddress, faculty, group), params));
+        params = new String[]{"ESC"};
+        sb.append(pullStringOperation(String.format(Queries.groupWebAddress, faculty, group), params));
 
-		return sb.toString();
-	}
+        return sb.toString();
+    }
 
     public boolean setProtectedState(String faculty, String group, int state) {
-        return pushOperation(String.format(Queries.setGroupProtected, faculty, state,group));
+        return pushOperation(String.format(Queries.setGroupProtected, faculty, state, group));
     }
 
     //protection queries
     public boolean dropFacultyProtectedState(String faculty) {
         List<String> groups = getGroupIDListOnFaculty(faculty);
         System.out.println(groups);
-        for (String grp: groups){
+        for (String grp : groups) {
             System.out.println(grp);
-            if (!(setProtectedState(faculty,grp,0)))
+            if (!(setProtectedState(faculty, grp, 0)))
                 return false;
         }
         return true;
@@ -108,7 +109,7 @@ public class SQLMethods {
 
     public boolean dropAllFacultiesProtectedState() {
         List<String> faculties = getAllFacultiesIDs();
-        for (String fac: faculties) {
+        for (String fac : faculties) {
             System.out.println(fac);
             if (!(dropFacultyProtectedState(fac)))
                 return false;
@@ -122,13 +123,13 @@ public class SQLMethods {
         return pullListOperation(String.format(Queries.protectedGroupsOnFaculty, faculty), params);
     }
 
-    public Map<String,List<String>> getAllProtectedGroups() {
-        Map <String,List<String>> result = new HashMap<>();
+    public Map<String, List<String>> getAllProtectedGroups() {
+        Map<String, List<String>> result = new HashMap<>();
 
 
         List<String> faculties = getAllFacultiesIDs();
-        for (String fac: faculties) {
-            result.put(fac,getProtectedGroupsOnFaculty(fac));
+        for (String fac : faculties) {
+            result.put(fac, getProtectedGroupsOnFaculty(fac));
         }
         return result;
     }
@@ -136,7 +137,7 @@ public class SQLMethods {
     //HEADS operaions
     public boolean addHead(String name, String password, String faculty, String group) {
         PasswordHandler pwh = PasswordHandler.getInstance();
-        if (groupOnFacultyExists(faculty,group)) {
+        if (groupOnFacultyExists(faculty, group)) {
             try {
                 password = pwh.encrypt(password);
             } catch (GeneralSecurityException e) {
@@ -144,75 +145,90 @@ public class SQLMethods {
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-            return pushOperation(String.format(Queries.addHead,name,password,faculty,group));
+            if (!(headOnFacultyRegistered(faculty, group)))
+                return pushOperation(String.format(Queries.addHead, name, password, faculty, group));
         }
         return false;
+    }
+
+    public boolean dropHead(String faculty, String group) {
+        return pushOperation(String.format(Queries.deleteHead, faculty, group));
+    }
+
+    public User getHead(String faculty, String group) {
+        String[] params = {"USERNAME", "SALTEDPASS"};
+        String info = pullStringOperation(String.format(Queries.getHead, faculty, group), params);
+
+        return new User(info.split("\\s+")[0], info.split("\\s+")[1]);
     }
 
     private boolean groupOnFacultyExists(String faculty, String group) {
         List<String> faculties = getAllFacultiesIDs();
         if (faculties.contains(faculty)) {
-            List<String> groups = getAllGroupsFilesOnFaculty(faculty);
-
+            List<String> groups = getGroupIDListOnFaculty(faculty);
             if (groups.contains(group))
                 return true;
         }
         return false;
     }
 
-	private String pullStringOperation(String query, String[] params) {
-		StringBuilder result = new StringBuilder();
+    private boolean headOnFacultyRegistered(String faculty, String group) {
+        return (pullStringOperation(String.format(Queries.headOfGroupExists, faculty, group), new String[]{"USERNAME"}).length() != 0);
+    }
 
-		try (Statement stmt = connection.createStatement();){
-			ResultSet rs = stmt.executeQuery(query);
+    private String pullStringOperation(String query, String[] params) {
+        StringBuilder result = new StringBuilder();
 
-			while (rs.next()) {
-				for (String s : params) {
-					result.append(rs.getString(s)).append(" ");
-				}
-			}
+        try (Statement stmt = connection.createStatement();) {
+            ResultSet rs = stmt.executeQuery(query);
 
-			stmt.close();
-		} catch (SQLException e) {
-			System.out.println(e.getClass().getName() + ": " + e.getMessage());
-		}
+            while (rs.next()) {
+                for (String s : params) {
+                    result.append(rs.getString(s)).append(" ");
+                }
+            }
 
-		return result.toString().trim();
-	}
+            stmt.close();
+        } catch (SQLException e) {
+            System.out.println(e.getClass().getName() + ": " + e.getMessage());
+        }
 
-	private List<String> pullListOperation(String query, String[] params) {
-		List<String> result = new ArrayList<>();
+        return result.toString().trim();
+    }
 
-		try (Statement stmt = connection.createStatement()){
-			ResultSet rs = stmt.executeQuery(query);
+    private List<String> pullListOperation(String query, String[] params) {
+        List<String> result = new ArrayList<>();
 
-			while (rs.next()) {
-				StringBuilder str = new StringBuilder();
+        try (Statement stmt = connection.createStatement()) {
+            ResultSet rs = stmt.executeQuery(query);
 
-				for (String s : params) {
-					str.append(rs.getString(s));
+            while (rs.next()) {
+                StringBuilder str = new StringBuilder();
 
-					if (params.length > 1) {
-						str.append(" ");
-					}
-				}
+                for (String s : params) {
+                    str.append(rs.getString(s));
 
-				result.add(str.toString().trim());
-			}
-		} catch (SQLException e) {
-			System.out.println(e.getClass().getName() + ": " + e.getMessage());
-		}
+                    if (params.length > 1) {
+                        str.append(" ");
+                    }
+                }
 
-		return result;
-	}
+                result.add(str.toString().trim());
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+
+        return result;
+    }
 
 
     private boolean pushOperation(String query) {
         try (Statement stmt = connection.createStatement();) {
             stmt.executeUpdate(query);
             stmt.close();
-        } catch(SQLException e) {
-            System.out.println(e.getClass().getName() + ": "+ e.getMessage());
+        } catch (SQLException e) {
+            System.out.println(e.getClass().getName() + ": " + e.getMessage());
             return false;
         }
         return true;
