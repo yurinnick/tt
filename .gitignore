@@ -1,6 +1,4 @@
 out
 timetables
 .idea/workspace.xml
-target/classes
-target/test-classes
 .master
