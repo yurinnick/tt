@@ -146,13 +146,31 @@ public class SQLMethods {
                 e.printStackTrace();
             }
             if (!(headOnFacultyRegistered(faculty, group)))
-                return pushOperation(String.format(Queries.addHead, name, password, faculty, group));
+                setProtectedState(faculty, group, 1);
+            return pushOperation(String.format(Queries.addHead, name, password, faculty, group));
         }
         return false;
     }
 
     public boolean dropHead(String faculty, String group) {
+        setProtectedState(faculty, group, 0);
         return pushOperation(String.format(Queries.deleteHead, faculty, group));
+    }
+
+    public boolean dropAllHeadsOnFaculty(String faculty) {
+        boolean state = false;
+        for (String group : getGroupIDListOnFaculty(faculty)) {
+            state = dropHead(faculty, group);
+        }
+        return state;
+    }
+
+    public boolean dropAllHeads() {
+        boolean state = false;
+        for (String faculty : getAllFacultiesIDs()) {
+            state = dropAllHeadsOnFaculty(faculty);
+        }
+        return state;
     }
 
     public User getHead(String faculty, String group) {
@@ -165,35 +183,24 @@ public class SQLMethods {
     public void transferHeadsOnFaculty(String faculty) {
         List<String> groups = getGroupIDListOnFaculty(faculty);
 
-        for (String group: groups) {
+        //should be sorted! make them sorted on deployment stage
+        for (String group : groups) {
             //avoid non-managed groups
-            if (headOnFacultyRegistered(faculty, group)){
+            if (headOnFacultyRegistered(faculty, group)) {
                 //avoid the 4th, 5th years or masters
                 //or non-numerical things
-                makeTransfer(faculty, group);
+                String elderGrp = elderGroup(group);
+                if (elderGrp != null) {
+                    if (groupOnFacultyExists(faculty, elderGrp) && (groupOnFacultyExists(faculty, group))) {
+                        makeTransfer(faculty, group, elderGrp);
+                    }
+                }
             }
         }
     }
 
-    private void makeTransfer(String faculty, String firstGroup) {
-        if (groupOnFacultyExists(faculty, firstGroup)) {
-            /*
-            for fuck's sake, if there where no social science students
-            and some strange guys who don't like numbers
-            it was much much easier
-            I just can't stand all of you
-            by fau when writing this code
-            */
-            int group = Integer.parseInt(firstGroup);
-            group += 100;
-            String elderGroup = String.valueOf(group);
-            if (groupOnFacultyExists(faculty, elderGroup)) {
-                User u = getHead(faculty, firstGroup);
-                pushOperation(String.format(Queries.transferHead, u.getName(), u.getPassword(), faculty, elderGroup));
-                if (group/100==1)
-                dropHead(faculty,firstGroup);
-            }
-        }
+    private void makeTransfer(String faculty, String grp1, String grp2) {
+            //TODO!
     }
 
     private boolean groupOnFacultyExists(String faculty, String group) {
@@ -266,5 +273,24 @@ public class SQLMethods {
             return false;
         }
         return true;
+    }
+
+    private String elderGroup(String group) {
+        String result = null;
+         /*
+            for fuck's sake, if there where no social science students
+            and some strange guys who don't like numbers
+            it was much much easier
+            I just can't stand all of you
+            by fau when writing this code
+            */
+        try {
+            int elder = Integer.parseInt(group);
+            elder += 100;
+            result = Integer.toString(elder);
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+        return result;
     }
 }

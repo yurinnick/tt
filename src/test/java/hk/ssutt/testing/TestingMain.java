@@ -15,7 +15,8 @@ public class TestingMain {
 	    d.deploy();
         DeployDB db = d.getDeployDB();
         SQLMethods sqlm = SQLMethods.getInstance(db.getConnection());
-        sqlm.addHead("yoba","pssh","knt","151");
+        sqlm.addHead("yoba","psh","knt","151");
         sqlm.transferHeadsOnFaculty("knt");
+
     }
 }
