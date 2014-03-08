@@ -1,4 +1,4 @@
-package hk.ssutt.api.parsing.xml.vk;
+package hk.ssutt.api.parsing.vk;
 
 /**
  * Created by Севак on 24.02.14.

@@ -34,11 +34,10 @@ public class PasswordHandler {
     public static PasswordHandler getInstance() {
         if (psh == null) {
             Path file = Paths.get("./.master");
-            BufferedReader reader = null;
-            try {
-                reader = Files.newBufferedReader(file, Charset.defaultCharset());
+
+            try (BufferedReader reader = Files.newBufferedReader(file, Charset.defaultCharset())) {
                 String master = reader.readLine();
-                PASSWORD=master.toCharArray();
+                PASSWORD = master.toCharArray();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -67,14 +66,15 @@ public class PasswordHandler {
         return new String(pbeCipher.doFinal(base64Decode(property)), "UTF-8");
     }
 
-    public static boolean matchEncryptedPasswords(String password0, String password1){
+    public static boolean matchEncryptedPasswords(String password0, String password1) {
         try {
-            return  (decrypt(password0).equals(decrypt(password1)));
+            return decrypt(password0).equals(decrypt(password1));
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return false;
     }
 

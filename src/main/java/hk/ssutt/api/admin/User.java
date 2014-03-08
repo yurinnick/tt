@@ -15,7 +15,6 @@ public class User {
     public static String getName() {
         return name;
     }
-
     public static String getPassword() {
         return password;
     }

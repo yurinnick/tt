@@ -1,8 +1,8 @@
-package hk.ssutt.api.parsing.xml.vk;
+package hk.ssutt.api.parsing.vk;
 
 import javax.naming.OperationNotSupportedException;
 
-import static hk.ssutt.api.parsing.xml.vk.SchedulePatterns.*;
+import static hk.ssutt.api.parsing.vk.SchedulePatterns.*;
 
 /**
  * Created by Севак on 22.02.14.
