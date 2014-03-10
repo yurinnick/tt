@@ -171,7 +171,7 @@ public class SQLHandler {
     }
 
     //head of groups operaions
-    public boolean addManager(String name, String password, String faculty, String group) {
+    public boolean addManager(String name, String password, String faculty, String group, boolean isTransfer) {
         PasswordHandler pwh = PasswordHandler.getInstance();
         if (groupExists(faculty, group)) {
             try {
@@ -183,11 +183,13 @@ public class SQLHandler {
             }
             if (!(managerRegistered(faculty, group))) {
                 setManagedState(faculty, group, 1);
-                return pushOperation(String.format(Queries.addManager, name, password, faculty, group));
+                return pushOperation(String.format(
+                        (isTransfer) ? Queries.transferManager : Queries.addManager, name, password, faculty, group));
             }
         }
         return false;
     }
+
 
     public boolean dropManager(String faculty, String group) {
         setManagedState(faculty, group, 0);
@@ -228,25 +230,20 @@ public class SQLHandler {
                 //avoid the 4th, 5th years or masters
                 //or non-numerical things
                 String elderGrp = elderGroup(group);
-                if (groupExists(faculty, elderGrp)) {
-                    System.out.println(String.format("will transfer %s -> %s", group, elderGrp));
+                if (groupExists(faculty, elderGrp))
                     makeTransfer(faculty, group, elderGrp);
-                } else
-                    System.out.println(String.format("won't transfer %s -> %s", group, elderGrp));
+                else
+                    dropManager(faculty, group);
             }
         }
     }
 
     private void makeTransfer(String faculty, String grp1, String grp2) {
         setManagedState(faculty, grp2, 1);
-        setManagedState(faculty, grp1, 0);
 
         User u = getManager(faculty, grp1);
 
-        if (managerRegistered(faculty, grp2)) {
-            pushOperation(String.format(Queries.transferManager, u.getName(), u.getPassword(), faculty, grp2));
-        } else
-            pushOperation(String.format(Queries.addManager, u.getName(), u.getPassword(), faculty, grp2));
+        addManager(u.getName(), u.getPassword(), faculty, grp2, managerRegistered(faculty, grp2));
 
         dropManager(faculty, grp1);
     }
