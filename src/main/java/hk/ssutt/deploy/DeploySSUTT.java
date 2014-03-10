@@ -23,7 +23,7 @@ public class DeploySSUTT {
         return deploy;
     }
 
-    public Connection deploy() {
+    public void deploy() {
         long start = System.currentTimeMillis();
 
         DeployFS fsd = new DeployFS();
@@ -43,8 +43,6 @@ public class DeploySSUTT {
             System.out.println("TT was deployed before.");
             new DeployDB(fsm);
         }
-
-        return DeployDB.getConnection();
     }
 
 }
