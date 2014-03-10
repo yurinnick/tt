@@ -9,7 +9,6 @@ public class TestingMain {
         DeploySSUTT d = DeploySSUTT.getInstance();
 
         SQLHandler sqlm = SQLHandler.getInstance(d.deploy());
-        System.out.println(sqlm.getGroupWebAddress("knt","151"));
-
+        sqlm.transferManagersOnFaculty("knt");
     }
 }

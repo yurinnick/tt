@@ -39,14 +39,14 @@ public abstract class Queries {
     public static final String setGroupManaged = "UPDATE %s SET MANAGED=%d WHERE GRP=\"%s\"";
 
     //admin operations
-    public static final String addHead = "INSERT INTO HEADS(USER,PASS,FACULTY,GRP) VALUES('%s','%s','%s','%s');";
+    public static final String addManager = "INSERT INTO managers (USER,PASS,FACULTY,GRP) VALUES('%s','%s','%s','%s');";
 
-    public static final String headOfGroupExists = "SELECT * FROM HEADS WHERE FACULTY='%s' AND GRP='%s';";
+    public static final String groupManagerExists = "SELECT * FROM managers WHERE FACULTY='%s' AND GRP='%s';";
 
-    public static final String deleteHead = "DELETE FROM HEADS WHERE FACULTY='%s' AND GRP='%s';";
+    public static final String deleteManager = "DELETE FROM managers  WHERE FACULTY='%s' AND GRP='%s';";
 
-    public static final String getHead = "SELECT USER, PASS FROM HEADS WHERE FACULTY='%s' AND GRP='%s'";
+    public static final String getManager = "SELECT USER, PASS FROM managers WHERE FACULTY='%s' AND GRP='%s'";
 
-    public static final String transferHead = "UPDATE HEADS SET USER='%s', PASS='%s' WHERE FACULTY='%s' and GRP='%s'";
+    public static final String transferManager = "UPDATE managers SET USER='%s', PASS='%s' WHERE FACULTY='%s' and GRP='%s'";
 
 }

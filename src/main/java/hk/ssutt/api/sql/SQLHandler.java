@@ -2,7 +2,7 @@ package hk.ssutt.api.sql;
 
 import hk.ssutt.api.admin.PasswordHandler;
 import hk.ssutt.api.admin.User;
-import hk.ssutt.utils.Utils;
+import hk.ssutt.api.utils.Utils;
 
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
@@ -144,7 +144,7 @@ public class SQLHandler {
         return true;
     }
 
-    public boolean dropAllManagers() {
+    public boolean dropAllManagedStates() {
         List<String> faculties = getAllFacultiesID();
         for (String fac : faculties) {
             System.out.println(fac);
@@ -155,26 +155,25 @@ public class SQLHandler {
     }
 
 
-    public List<String> getProtectedGroupsOnFaculty(String faculty) {
+    public List<String> getManagedGroupsOnFaculty(String faculty) {
         String[] params = {"GRP"};
         return pullListOperation(String.format(Queries.managedGroupsOnFaculty, faculty), params);
     }
 
-    public Map<String, List<String>> getAllProtectedGroups() {
+    public Map<String, List<String>> getAllManagedGroups() {
         Map<String, List<String>> result = new HashMap<>();
-
 
         List<String> faculties = getAllFacultiesID();
         for (String fac : faculties) {
-            result.put(fac, getProtectedGroupsOnFaculty(fac));
+            result.put(fac, getManagedGroupsOnFaculty(fac));
         }
         return result;
     }
 
-    //HEADS operaions
-    public boolean addHead(String name, String password, String faculty, String group) {
+    //head of groups operaions
+    public boolean addManager(String name, String password, String faculty, String group) {
         PasswordHandler pwh = PasswordHandler.getInstance();
-        if (groupOnFacultyExists(faculty, group)) {
+        if (groupExists(faculty, group)) {
             try {
                 password = pwh.encrypt(password);
             } catch (GeneralSecurityException e) {
@@ -182,67 +181,77 @@ public class SQLHandler {
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-            if (!(headOnFacultyRegistered(faculty, group))) {
+            if (!(managerRegistered(faculty, group))) {
                 setManagedState(faculty, group, 1);
-                return pushOperation(String.format(Queries.addHead, name, password, faculty, group));
+                return pushOperation(String.format(Queries.addManager, name, password, faculty, group));
             }
         }
         return false;
     }
 
-    public boolean dropHead(String faculty, String group) {
+    public boolean dropManager(String faculty, String group) {
         setManagedState(faculty, group, 0);
-        return pushOperation(String.format(Queries.deleteHead, faculty, group));
+        return pushOperation(String.format(Queries.deleteManager, faculty, group));
     }
 
-    public boolean dropAllHeadsOnFaculty(String faculty) {
+    public boolean dropAllManagersOnFaculty(String faculty) {
         boolean state = false;
         for (String group : getGroupID(faculty)) {
-            if (headOnFacultyRegistered(faculty, group))
-                state = dropHead(faculty, group);
+            if (managerRegistered(faculty, group))
+                state = dropManager(faculty, group);
         }
         return state;
     }
 
-    public boolean dropAllHeads() {
+    public boolean dropAllManagers() {
         boolean state = false;
         for (String faculty : getAllFacultiesID()) {
-            state = dropAllHeadsOnFaculty(faculty);
+            state = dropAllManagersOnFaculty(faculty);
         }
         return state;
     }
 
-    public User getHead(String faculty, String group) {
-        String[] params = {"USERNAME", "SALTEDPASS"};
-        String info = pullStringOperation(String.format(Queries.getHead, faculty, group), params);
+    public User getManager(String faculty, String group) {
+        String[] params = {"USER", "PASS"};
+        String info = pullStringOperation(String.format(Queries.getManager, faculty, group), params);
 
         return new User(info.split("\\s+")[0], info.split("\\s+")[1]);
     }
 
-    public void transferHeadsOnFaculty(String faculty) {
+    public void transferManagersOnFaculty(String faculty) {
         List<String> groups = getGroupID(faculty);
-
+        Collections.sort(groups, Utils.stringReverseOrderCmp);
         //should be sorted! make them sorted on deployment stage
         for (String group : groups) {
             //avoid non-managed groups
-            if (headOnFacultyRegistered(faculty, group)) {
+            if (managerRegistered(faculty, group)) {
                 //avoid the 4th, 5th years or masters
                 //or non-numerical things
                 String elderGrp = elderGroup(group);
-                if (elderGrp != null) {
-                    if (groupOnFacultyExists(faculty, elderGrp) && (groupOnFacultyExists(faculty, group))) {
-                        makeTransfer(faculty, group, elderGrp);
-                    }
-                }
+                if (groupExists(faculty, elderGrp)) {
+                    System.out.println(String.format("will transfer %s -> %s", group, elderGrp));
+                    makeTransfer(faculty, group, elderGrp);
+                } else
+                    System.out.println(String.format("won't transfer %s -> %s", group, elderGrp));
             }
         }
     }
 
     private void makeTransfer(String faculty, String grp1, String grp2) {
-        //TODO!
+        setManagedState(faculty, grp2, 1);
+        setManagedState(faculty, grp1, 0);
+
+        User u = getManager(faculty, grp1);
+
+        if (managerRegistered(faculty, grp2)) {
+            pushOperation(String.format(Queries.transferManager, u.getName(), u.getPassword(), faculty, grp2));
+        } else
+            pushOperation(String.format(Queries.addManager, u.getName(), u.getPassword(), faculty, grp2));
+
+        dropManager(faculty, grp1);
     }
 
-    private boolean groupOnFacultyExists(String faculty, String group) {
+    private boolean groupExists(String faculty, String group) {
         List<String> faculties = getAllFacultiesID();
         if (faculties.contains(faculty)) {
             List<String> groups = getGroupID(faculty);
@@ -252,8 +261,8 @@ public class SQLHandler {
         return false;
     }
 
-    private boolean headOnFacultyRegistered(String faculty, String group) {
-        return (pullStringOperation(String.format(Queries.headOfGroupExists, faculty, group), new String[]{"USERNAME"}).length() != 0);
+    private boolean managerRegistered(String faculty, String group) {
+        return (pullStringOperation(String.format(Queries.groupManagerExists, faculty, group), new String[]{"USER"}).length() != 0);
     }
 
     private String pullStringOperation(String query, String[] params) {

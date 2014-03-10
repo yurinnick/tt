@@ -1,4 +1,4 @@
-package hk.ssutt.utils;
+package hk.ssutt.api.utils;
 
 import java.util.Comparator;
 
@@ -10,10 +10,11 @@ public abstract class Utils {
             return o1[0].compareTo(o2[0]);
         }
     };
-    public static final Comparator<String[]> groupArrayReverseOrderCmp = new Comparator<String[]>() {
+
+    public static final Comparator<String> stringReverseOrderCmp = new Comparator<String>() {
         @Override
-        public int compare(String[] o1, String[] o2) {
-            return o2[0].compareTo(o1[0]);
+        public int compare(String o1, String o2) {
+            return o2.compareTo(o1);
         }
     };
 }
