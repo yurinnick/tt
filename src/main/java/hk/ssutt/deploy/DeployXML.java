@@ -17,7 +17,7 @@ public abstract class DeployXML {
 
         List<String> faculties = sqlm.getAllFacultiesID();
         for (String f : faculties) {
-            List<String> groups = sqlm.getFilesOnFaculty(f);
+            List<String> groups = sqlm.getGroupsFiles(f);
             for (String g : groups) {
                 fsm.touch(new File(g));
             }

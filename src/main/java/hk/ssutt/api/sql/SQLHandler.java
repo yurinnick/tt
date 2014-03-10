@@ -32,6 +32,7 @@ public class SQLHandler {
         connection = c;
     }
 
+    //==========DEPLOYMENT==========
     public void createDepartments(List<String[]> faculties) {
         //id-link-name
         if (pushOperation(Queries.createDepartments)) {
@@ -70,15 +71,7 @@ public class SQLHandler {
         pushOperation(Queries.createManagers);
     }
 
-
-    //XML files queries
-    //return path files per group on faculty (do we need Group entity?)
-    public List<String> getFilesOnFaculty(String faculty) {
-        String[] params = {"PATH"};
-
-        return pullListOperation(String.format(Queries.allGroupsOnFaculty, faculty), params);
-    }
-
+    //==========GROUPS==========
     public String getEvenTT(String faculty, String group) {
         String[] params = {"PATH"};
 
@@ -91,28 +84,26 @@ public class SQLHandler {
         return pullStringOperation(String.format(Queries.oddTT, faculty, group), params);
     }
 
-    //just ids
+    private boolean groupExists(String faculty, String group) {
+        List<String> faculties = getAllFacultiesID();
+        if (faculties.contains(faculty)) {
+            List<String> groups = getGroupID(faculty);
+            if (groups.contains(group))
+                return true;
+        }
+        return false;
+    }
+
     public List<String> getGroupID(String faculty) {
         String[] params = {"GRP"};
 
         return pullListOperation(String.format(Queries.groupListOnFaculty, faculty), params);
     }
 
-    public List<String> getAllFacultiesID() {
-        String[] params = {"ID"};
+    public List<String> getGroupsFiles(String faculty) {
+        String[] params = {"PATH"};
 
-        return pullListOperation(Queries.allFacultiesIDs, params);
-    }
-
-    public String getFacultyNameFromID(String facultyID) {
-        String[] params = {"NAME"};
-        return pullStringOperation(String.format(Queries.facultyNameFromID, facultyID), params);
-    }
-
-    //web addresses queries
-    public String getFacultyWebAddress(String faculty) {
-        String[] params = {"LINK"};
-        return pullStringOperation(String.format(Queries.facultyWebAddress, faculty), params).trim();
+        return pullListOperation(String.format(Queries.allGroupsOnFaculty, faculty), params);
     }
 
     public String getGroupWebAddress(String faculty, String group) {
@@ -128,6 +119,25 @@ public class SQLHandler {
         return sb.toString();
     }
 
+    //==========FACULTIES==========
+    public List<String> getAllFacultiesID() {
+        String[] params = {"ID"};
+
+        return pullListOperation(Queries.allFacultiesIDs, params);
+    }
+
+    public String getFacultyNameFromID(String facultyID) {
+        String[] params = {"NAME"};
+        return pullStringOperation(String.format(Queries.facultyNameFromID, facultyID), params);
+    }
+
+    public String getFacultyWebAddress(String faculty) {
+        String[] params = {"LINK"};
+        return pullStringOperation(String.format(Queries.facultyWebAddress, faculty), params).trim();
+    }
+
+
+    //==========GROUP MANAGEMENT==========(GROUP TABLES)
     public boolean setManagedState(String faculty, String group, int state) {
         return pushOperation(String.format(Queries.setGroupManaged, faculty, state, group));
     }
@@ -154,7 +164,6 @@ public class SQLHandler {
         return true;
     }
 
-
     public List<String> getManagedGroupsOnFaculty(String faculty) {
         String[] params = {"GRP"};
         return pullListOperation(String.format(Queries.managedGroupsOnFaculty, faculty), params);
@@ -170,7 +179,7 @@ public class SQLHandler {
         return result;
     }
 
-    //head of groups operaions
+    //==========MANAGERS==========
     public boolean addManager(String name, String password, String faculty, String group, boolean isTransfer) {
         PasswordHandler pwh = PasswordHandler.getInstance();
         if (groupExists(faculty, group)) {
@@ -190,6 +199,12 @@ public class SQLHandler {
         return false;
     }
 
+    public User getManager(String faculty, String group) {
+        String[] params = {"USER", "PASS"};
+        String info = pullStringOperation(String.format(Queries.getManager, faculty, group), params);
+
+        return new User(info.split("\\s+")[0], info.split("\\s+")[1]);
+    }
 
     public boolean dropManager(String faculty, String group) {
         setManagedState(faculty, group, 0);
@@ -213,13 +228,6 @@ public class SQLHandler {
         return state;
     }
 
-    public User getManager(String faculty, String group) {
-        String[] params = {"USER", "PASS"};
-        String info = pullStringOperation(String.format(Queries.getManager, faculty, group), params);
-
-        return new User(info.split("\\s+")[0], info.split("\\s+")[1]);
-    }
-
     public void transferManagersOnFaculty(String faculty) {
         List<String> groups = getGroupID(faculty);
         Collections.sort(groups, Utils.stringReverseOrderCmp);
@@ -229,16 +237,16 @@ public class SQLHandler {
             if (managerRegistered(faculty, group)) {
                 //avoid the 4th, 5th years or masters
                 //or non-numerical things
-                String elderGrp = elderGroup(group);
+                String elderGrp = Utils.elderGroup(group);
                 if (groupExists(faculty, elderGrp))
-                    makeTransfer(faculty, group, elderGrp);
+                    performTransfer(faculty, group, elderGrp);
                 else
                     dropManager(faculty, group);
             }
         }
     }
 
-    private void makeTransfer(String faculty, String grp1, String grp2) {
+    private void performTransfer(String faculty, String grp1, String grp2) {
         setManagedState(faculty, grp2, 1);
 
         User u = getManager(faculty, grp1);
@@ -248,20 +256,11 @@ public class SQLHandler {
         dropManager(faculty, grp1);
     }
 
-    private boolean groupExists(String faculty, String group) {
-        List<String> faculties = getAllFacultiesID();
-        if (faculties.contains(faculty)) {
-            List<String> groups = getGroupID(faculty);
-            if (groups.contains(group))
-                return true;
-        }
-        return false;
-    }
-
     private boolean managerRegistered(String faculty, String group) {
         return (pullStringOperation(String.format(Queries.groupManagerExists, faculty, group), new String[]{"USER"}).length() != 0);
     }
 
+    //===========OPERATIONS=============
     private String pullStringOperation(String query, String[] params) {
         StringBuilder result = new StringBuilder();
 
@@ -310,7 +309,6 @@ public class SQLHandler {
         return result;
     }
 
-
     private boolean pushOperation(String query) {
         try (Statement stmt = connection.createStatement();) {
             stmt.executeUpdate(query);
@@ -323,22 +321,4 @@ public class SQLHandler {
         return true;
     }
 
-    private String elderGroup(String group) {
-        String result = null;
-         /*
-            for fuck's sake, if there where no social science students
-            and some strange guys who don't like numbers
-            it was much much easier
-            I just can't stand all of you
-            by fau when writing this code
-            */
-        try {
-            int elder = Integer.parseInt(group);
-            elder += 100;
-            result = Integer.toString(elder);
-        } catch (NumberFormatException ex) {
-            return null;
-        }
-        return result;
-    }
 }
