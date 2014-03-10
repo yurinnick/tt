@@ -1,6 +1,6 @@
 package hk.ssutt.deploy;
 
-import hk.ssutt.api.sql.SQLMethods;
+import hk.ssutt.api.sql.SQLHandler;
 
 import java.io.File;
 import java.util.List;
@@ -24,13 +24,13 @@ public class DeployFS {
         new File("timetables/").mkdir();
     }
 
-    public void deployFS(SQLMethods sqlm) {
+    public void deployFS(SQLHandler sqlm) {
         long start = System.currentTimeMillis();
 
-        List<String> faculties = sqlm.getAllFacultiesIDs();
+        List<String> faculties = sqlm.getAllFacultiesID();
 
         for (String s : faculties) {
-            List<String> groups = sqlm.getGroupIDListOnFaculty(s);
+            List<String> groups = sqlm.getGroupID(s);
             for (String g : groups) {
 	            new File("timetables/" + s + "/" + g).mkdirs();
             }

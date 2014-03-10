@@ -1,24 +1,16 @@
 package hk.ssutt.deploy;
 
 
-import hk.ssutt.api.fs.FSMethods;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import hk.ssutt.api.fs.FSHandler;
+import hk.ssutt.api.parsing.html.HTMLParser;
+import hk.ssutt.api.sql.SQLHandler;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 
 public class DeployDB {
@@ -28,23 +20,29 @@ public class DeployDB {
 	private static Connection c = null;
 
 	public DeployDB(String dbPath) {
-		this.dbPath = dbPath;
+        this.dbPath = dbPath;
 
-		createConnection();
+		SQLHandler sqlh = SQLHandler.getInstance(getConnection());
+        HTMLParser htmlh = HTMLParser.getInstance();
+        FSHandler fsh = FSHandler.getInstance();
 
-		List<String[]> faculties = getFaculties();
-		createILNtable(faculties);//id(knt,mm) + link (http://..) + name(CS&IT)
+        String currentDirectory = fsh.getTTDir();
 
-		for (String[] s : faculties) {
-			List<String[]> groups = getGroups(s[1], s[0]);
-			createFacultyTable(s[0], groups);
-		}
+		List<String[]> faculties = htmlh.getFacultiesFromSSU();
+		sqlh.createDepartments(faculties);
 
-		createHeadsTable();
+
+        for (String[] s : faculties) {
+			List<String[]> groups = htmlh.getGroupsFromSSU(s[1], s[0]);
+	        sqlh.createFaculty(s[0]);
+            sqlh.fillFaculty(s[0], groups, currentDirectory);
+    	}
+
+        sqlh.createManagers();
 	}
 
 	//database can exist, but in this case it stays uninitialized
-	public DeployDB(FSMethods fsm) {
+	public DeployDB(FSHandler fsm) {
 		dbPath = fsm.getTTDirPath();
 	}
 
@@ -63,159 +61,6 @@ public class DeployDB {
 		} catch (Exception e) {
 			System.out.println(e.getClass().getName() + ": " + e.getMessage());
 			System.exit(1);
-		}
-	}
-
-	private List<String[]> getFaculties() {
-		List<String[]> result = new ArrayList<>();
-		Document doc = null;
-
-		try {
-			doc = Jsoup.connect(scheduleURL).get();
-		} catch (IOException e) {
-			System.out.println(e.getClass().getName() + ": " + e.getMessage());
-			System.exit(2);
-		}
-
-		Elements links = doc.select("a[href]");
-		//parsing exceptions
-		for (Element link : links) {
-			if (link.attr("href").startsWith("/schedule/")) {
-				String[] test = link.attr("abs:href").split("/"); //test[4] - the last token like knt,mm,ff
-
-				if (notInExclusion(test[4])) {
-					String[] aFaculty = new String[3];
-					aFaculty[0] = test[4];
-					aFaculty[1] = link.attr("abs:href");
-					aFaculty[2] = link.ownText();
-
-					result.add(aFaculty);
-				}
-			}
-		}
-
-		return result;
-	}
-
-	private boolean notInExclusion(String s) {
-		try (InputStream in = Files.newInputStream(exclFile);
-		     BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-
-			String line;
-			while ((line = reader.readLine()) != null) {
-				if (s.equals(line)) {
-					return false;
-				}
-			}
-		} catch (IOException e) {
-			System.out.printf("%s: %s%n", e.getClass().getName(), e.getMessage());
-			System.exit(-3);
-		}
-
-		return true;
-
-	}
-
-	//id-link-name
-	private void createILNtable(List<String[]> faculties) {
-		try (Statement stmt = c.createStatement()) {
-			String sql = "CREATE TABLE ILN " +
-					"(ID CHAR(6)     NOT NULL," +
-					"LINK           TEXT     NOT NULL, " +
-					"NAME           TEXT    NOT NULL);";
-
-			stmt.executeUpdate(sql);
-
-			for (String[] elem : faculties) {
-				String s = String.format("INSERT INTO ILN (ID, LINK, NAME) VALUES ('%s','%s','%s');", elem[0], elem[1], elem[2]); // удобнее string.format юзать
-				stmt.executeUpdate(s);
-
-			}
-		} catch (SQLException e) {
-			System.out.println(e.getClass().getName() + ": " + e.getMessage());
-			System.exit(3);
-		}
-
-	}
-
-	//we have full path from our previous query
-	private List<String[]> getGroups(String url, String faculty) {
-		List<String[]> result = new ArrayList<>();
-
-		Document doc = null;
-		try {
-			doc = Jsoup.connect(url).get();
-		} catch (IOException e) {
-			System.out.println(e.getClass().getName() + ": " + e.getMessage());
-			System.exit(4);
-		}
-
-		Elements links = doc.select("a[href]");
-		for (Element link : links) {
-			if (link.attr("href").startsWith("/schedule/" + faculty + "/do/")) {
-				String s[] = new String[2];
-				s[0] = link.ownText();
-				String[] esc = link.attr("abs:href").split("/");
-
-				s[1] = esc[esc.length - 1];
-				result.add(s);
-
-			}
-
-		}
-		return result;
-
-	}
-
-	private void createFacultyTable(String faculty, List<String[]> groups) {
-		try {
-			Statement stmt = c.createStatement();
-			String sql = "CREATE TABLE " + faculty +
-					"(GRP TEXT NOT NULL, " +
-					"ESC TEXT NOT NULL, " + //non-unescaped addresses (for groups like 141(1))
-					"EVEN INT NOT NULL, " + //sqlite has no boolean
-					"PATH TEXT NOT NULL, " +
-					"PROTECTED INT NOT NULL);";
-
-			stmt.executeUpdate(sql);
-
-			String dir = dbPath.replaceAll("timetables.db", "");
-			int i = 1; //used to differ even and odd TTs
-			for (String[] s : groups) {
-
-				String ssEven = String.format("INSERT INTO %s (GRP, ESC, EVEN, PATH, PROTECTED) VALUES ('%s', '%s', %d, '%s', %d);",
-						faculty, s[0], s[1], (((i - 1) % 2) == 0) ? 1 : 0, dir + faculty + '/' + s[0] + '/' + "even" + s[0] + ".xml", 0);
-				stmt.executeUpdate(ssEven);
-				i++;
-
-				String ssOdd = String.format("INSERT INTO %s (GRP, ESC, EVEN, PATH, PROTECTED) VALUES ('%s', '%s', %d, '%s', %d);",
-						faculty, s[0], s[1], (((i - 1) % 2) == 0) ? 1 : 0, dir + faculty + '/' + s[0] + '/' + "odd" + s[0] + ".xml", 0);
-				stmt.executeUpdate(ssOdd);
-				i++;
-			}
-			stmt.close();
-
-		} catch (SQLException e) {
-			System.out.println(e.getClass().getName() + ": " + e.getMessage());
-			System.exit(5);
-		}
-	}
-
-	private void createHeadsTable() {
-		try {
-			Statement stmt = c.createStatement();
-			String sql = "CREATE TABLE HEADS" +
-					" (" +
-					"USERNAME TEXT NOT NULL, " +
-					"SALTEDPASS TEXT NOT NULL, " +
-					"FACULTY TEXT NOT NULL, " +
-					"GRP TEXT NOT NULL);";
-
-			stmt.executeUpdate(sql);
-			stmt.close();
-		} catch (SQLException e) {
-			System.out.println(e.getClass().getName() + ": " + e.getMessage());
-			System.exit(6);
 		}
 	}
 }

@@ -1,18 +1,18 @@
 package hk.ssutt.api.fs;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Created by fau on 18/02/14.
  */
 
-public class FSMethods {
-	private static FSMethods fsm;
+public class FSHandler {
+	private static FSHandler fsm;
 
 	private static String ttDir = "timetables/";
 	private static String ttDBName = "timetables.db";
@@ -20,23 +20,23 @@ public class FSMethods {
 	//private static final String ttDir = "/var/timetables/";
 	private static File dbFile;
 
-	private FSMethods() {
+	private FSHandler() {
 	}
 
-	public static FSMethods getInstance() {
+	public static FSHandler getInstance() {
 		if (fsm == null) {
-			fsm = new FSMethods();
+			fsm = new FSHandler();
 		}
 
 		return fsm;
 	}
 
 	public static void setTtDir(String ttDir) {
-		FSMethods.ttDir = ttDir;
+		FSHandler.ttDir = ttDir;
 	}
 
 	public static void setTtDBName(String ttDBName) {
-		FSMethods.ttDBName = ttDBName;
+		FSHandler.ttDBName = ttDBName;
 	}
 
 	private static File downloadFile(URL url, String path) throws IOException {
@@ -71,6 +71,10 @@ public class FSMethods {
 		return dbFile.getAbsolutePath();
 	}
 
+    public String getTTDir(){
+        return dbFile.getAbsolutePath().replace(ttDBName, "");
+    }
+
 	public void touch(File file) {
 		try {
 			if (!file.exists()) {
@@ -82,4 +86,23 @@ public class FSMethods {
 			System.out.println(e.getClass().getName() + ": " + e.getMessage());
 		}
 	}
+
+    public boolean notInExclusion(String s, Path exclFile) {
+        try (InputStream in = Files.newInputStream(exclFile);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (s.equals(line)) {
+                    return false;
+                }
+            }
+        } catch (IOException e) {
+            System.out.printf("%s: %s%n", e.getClass().getName(), e.getMessage());
+            System.exit(-3);
+        }
+
+        return true;
+
+    }
 }

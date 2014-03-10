@@ -1,14 +1,15 @@
 package hk.ssutt.deploy;
 
-import hk.ssutt.api.fs.FSMethods;
-import hk.ssutt.api.sql.SQLMethods;
+import hk.ssutt.api.fs.FSHandler;
+import hk.ssutt.api.sql.SQLHandler;
+
+import java.sql.Connection;
 
 /**
  * Created by fau on 23/02/14.
  */
 
 public class DeploySSUTT {
-    private static DeployDB d;
     private static DeploySSUTT deploy;
 
     private DeploySSUTT() {
@@ -22,30 +23,28 @@ public class DeploySSUTT {
         return deploy;
     }
 
-	public void deploy() {
-		long start = System.currentTimeMillis();
+    public Connection deploy() {
+        long start = System.currentTimeMillis();
 
-		DeployFS fsd = new DeployFS();
-		FSMethods fsm = FSMethods.getInstance();
-		FSMethods.setTtDir(DeployFS.getTtDir());
-		FSMethods.setTtDBName(DeployFS.getDbName());
+        DeployFS fsd = new DeployFS();
+        FSHandler fsm = FSHandler.getInstance();
+        FSHandler.setTtDir(DeployFS.getTtDir());
+        FSHandler.setTtDBName(DeployFS.getDbName());
 
-		if (!fsm.hasTTInstance()) {
-			d = new DeployDB(fsm.getTTDirPath());
-			double time = (System.currentTimeMillis() - start) / 1_000.0;
+        if (!fsm.hasTTInstance()) {
+            new DeployDB(fsm.getTTDirPath());
+            double time = (System.currentTimeMillis() - start) / 1_000.0;
 
-			System.out.println("Database deployed in: " + time + " sec");
-			fsd.deployFS(SQLMethods.getInstance(DeployDB.getConnection()));
+            System.out.println("Database deployed in: " + time + " sec");
+            fsd.deployFS(SQLHandler.getInstance(DeployDB.getConnection()));
 
-			DeployXML.deploy(SQLMethods.getInstance(DeployDB.getConnection()));
-		} else {
-			System.out.println("TT was deployed before.");
-            d = new DeployDB(fsm);
-		}
-	}
+            DeployXML.deploy(SQLHandler.getInstance(DeployDB.getConnection()));
+        } else {
+            System.out.println("TT was deployed before.");
+            new DeployDB(fsm);
+        }
 
-    public DeployDB getDeployDB() {
-        return d;
+        return DeployDB.getConnection();
     }
 
 }

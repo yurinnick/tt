@@ -1,7 +1,7 @@
 package hk.ssutt.deploy;
 
-import hk.ssutt.api.fs.FSMethods;
-import hk.ssutt.api.sql.SQLMethods;
+import hk.ssutt.api.fs.FSHandler;
+import hk.ssutt.api.sql.SQLHandler;
 
 import java.io.File;
 import java.util.List;
@@ -10,14 +10,14 @@ import java.util.List;
  * Created by fau on 23/02/14.
  */
 public abstract class DeployXML {
-    public static void deploy(SQLMethods sqlm) {
+    public static void deploy(SQLHandler sqlm) {
         long start = System.currentTimeMillis();
 
-        FSMethods fsm = FSMethods.getInstance();
+        FSHandler fsm = FSHandler.getInstance();
 
-        List<String> faculties = sqlm.getAllFacultiesIDs();
+        List<String> faculties = sqlm.getAllFacultiesID();
         for (String f : faculties) {
-            List<String> groups = sqlm.getAllGroupsFilesOnFaculty(f);
+            List<String> groups = sqlm.getFilesOnFaculty(f);
             for (String g : groups) {
                 fsm.touch(new File(g));
             }

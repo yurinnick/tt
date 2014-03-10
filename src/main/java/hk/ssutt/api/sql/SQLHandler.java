@@ -2,6 +2,7 @@ package hk.ssutt.api.sql;
 
 import hk.ssutt.api.admin.PasswordHandler;
 import hk.ssutt.api.admin.User;
+import hk.ssutt.utils.Utils;
 
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
@@ -9,21 +10,18 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class SQLMethods {
+public class SQLHandler {
     private static Connection connection;
-    private static SQLMethods sqlm;
+    private static SQLHandler sqlm;
 
-    private SQLMethods() {
+    private SQLHandler() {
     }
 
-    public static SQLMethods getInstance(Connection c) {
+    public static SQLHandler getInstance(Connection c) {
         if (sqlm == null) {
-            sqlm = new SQLMethods();
+            sqlm = new SQLHandler();
         }
 
         setConnection(c);
@@ -34,9 +32,48 @@ public class SQLMethods {
         connection = c;
     }
 
+    public void createDepartments(List<String[]> faculties) {
+        //id-link-name
+        if (pushOperation(Queries.createDepartments)) {
+            for (String[] faculty : faculties) {
+                pushOperation(String.format(Queries.registerDepartment, faculty[0], faculty[1], faculty[2]));
+            }
+        } else {
+            System.out.println("Creating departments went wrong. Exiting");
+            System.exit(-1);
+        }
+    }
+
+    public void createFaculty(String faculty) {
+        pushOperation(String.format(Queries.createFaculty, faculty));
+    }
+
+    public void fillFaculty(String faculty, List<String[]> groups, String currentDirectory) {
+        if (currentDirectory.endsWith("/"))
+            currentDirectory = currentDirectory.substring(0, currentDirectory.length() - 1);
+
+        Collections.sort(groups, Utils.groupArrayDirectOrderCmp);
+
+        for (String[] s : groups) {
+            String evenfile = String.format("%s/%s/%s/even%s.xml", currentDirectory, faculty, s[0], s[0]);
+            String oddfile = String.format("%s/%s/%s/odd%s.xml", currentDirectory, faculty, s[0], s[0]);
+
+            pushOperation(String.format(Queries.fillFaculty,
+                    faculty, s[0], s[1], 1, evenfile, 0));
+
+            pushOperation(String.format(Queries.fillFaculty,
+                    faculty, s[0], s[1], 0, oddfile, 0));
+        }
+    }
+
+    public void createManagers() {
+        pushOperation(Queries.createManagers);
+    }
+
+
     //XML files queries
     //return path files per group on faculty (do we need Group entity?)
-    public List<String> getAllGroupsFilesOnFaculty(String faculty) {
+    public List<String> getFilesOnFaculty(String faculty) {
         String[] params = {"PATH"};
 
         return pullListOperation(String.format(Queries.allGroupsOnFaculty, faculty), params);
@@ -55,13 +92,13 @@ public class SQLMethods {
     }
 
     //just ids
-    public List<String> getGroupIDListOnFaculty(String faculty) {
+    public List<String> getGroupID(String faculty) {
         String[] params = {"GRP"};
 
         return pullListOperation(String.format(Queries.groupListOnFaculty, faculty), params);
     }
 
-    public List<String> getAllFacultiesIDs() {
+    public List<String> getAllFacultiesID() {
         String[] params = {"ID"};
 
         return pullListOperation(Queries.allFacultiesIDs, params);
@@ -91,27 +128,27 @@ public class SQLMethods {
         return sb.toString();
     }
 
-    public boolean setProtectedState(String faculty, String group, int state) {
-        return pushOperation(String.format(Queries.setGroupProtected, faculty, state, group));
+    public boolean setManagedState(String faculty, String group, int state) {
+        return pushOperation(String.format(Queries.setGroupManaged, faculty, state, group));
     }
 
     //protection queries
-    public boolean dropFacultyProtectedState(String faculty) {
-        List<String> groups = getGroupIDListOnFaculty(faculty);
+    public boolean dropFacultyManagedState(String faculty) {
+        List<String> groups = getGroupID(faculty);
         System.out.println(groups);
         for (String grp : groups) {
             System.out.println(grp);
-            if (!(setProtectedState(faculty, grp, 0)))
+            if (!(setManagedState(faculty, grp, 0)))
                 return false;
         }
         return true;
     }
 
-    public boolean dropAllFacultiesProtectedState() {
-        List<String> faculties = getAllFacultiesIDs();
+    public boolean dropAllManagers() {
+        List<String> faculties = getAllFacultiesID();
         for (String fac : faculties) {
             System.out.println(fac);
-            if (!(dropFacultyProtectedState(fac)))
+            if (!(dropFacultyManagedState(fac)))
                 return false;
         }
         return true;
@@ -120,14 +157,14 @@ public class SQLMethods {
 
     public List<String> getProtectedGroupsOnFaculty(String faculty) {
         String[] params = {"GRP"};
-        return pullListOperation(String.format(Queries.protectedGroupsOnFaculty, faculty), params);
+        return pullListOperation(String.format(Queries.managedGroupsOnFaculty, faculty), params);
     }
 
     public Map<String, List<String>> getAllProtectedGroups() {
         Map<String, List<String>> result = new HashMap<>();
 
 
-        List<String> faculties = getAllFacultiesIDs();
+        List<String> faculties = getAllFacultiesID();
         for (String fac : faculties) {
             result.put(fac, getProtectedGroupsOnFaculty(fac));
         }
@@ -145,29 +182,31 @@ public class SQLMethods {
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-            if (!(headOnFacultyRegistered(faculty, group)))
-                setProtectedState(faculty, group, 1);
-            return pushOperation(String.format(Queries.addHead, name, password, faculty, group));
+            if (!(headOnFacultyRegistered(faculty, group))) {
+                setManagedState(faculty, group, 1);
+                return pushOperation(String.format(Queries.addHead, name, password, faculty, group));
+            }
         }
         return false;
     }
 
     public boolean dropHead(String faculty, String group) {
-        setProtectedState(faculty, group, 0);
+        setManagedState(faculty, group, 0);
         return pushOperation(String.format(Queries.deleteHead, faculty, group));
     }
 
     public boolean dropAllHeadsOnFaculty(String faculty) {
         boolean state = false;
-        for (String group : getGroupIDListOnFaculty(faculty)) {
-            state = dropHead(faculty, group);
+        for (String group : getGroupID(faculty)) {
+            if (headOnFacultyRegistered(faculty, group))
+                state = dropHead(faculty, group);
         }
         return state;
     }
 
     public boolean dropAllHeads() {
         boolean state = false;
-        for (String faculty : getAllFacultiesIDs()) {
+        for (String faculty : getAllFacultiesID()) {
             state = dropAllHeadsOnFaculty(faculty);
         }
         return state;
@@ -181,7 +220,7 @@ public class SQLMethods {
     }
 
     public void transferHeadsOnFaculty(String faculty) {
-        List<String> groups = getGroupIDListOnFaculty(faculty);
+        List<String> groups = getGroupID(faculty);
 
         //should be sorted! make them sorted on deployment stage
         for (String group : groups) {
@@ -200,13 +239,13 @@ public class SQLMethods {
     }
 
     private void makeTransfer(String faculty, String grp1, String grp2) {
-            //TODO!
+        //TODO!
     }
 
     private boolean groupOnFacultyExists(String faculty, String group) {
-        List<String> faculties = getAllFacultiesIDs();
+        List<String> faculties = getAllFacultiesID();
         if (faculties.contains(faculty)) {
-            List<String> groups = getGroupIDListOnFaculty(faculty);
+            List<String> groups = getGroupID(faculty);
             if (groups.contains(group))
                 return true;
         }
@@ -232,6 +271,7 @@ public class SQLMethods {
             stmt.close();
         } catch (SQLException e) {
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
+            System.out.println("On query: " + query);
         }
 
         return result.toString().trim();
@@ -258,6 +298,7 @@ public class SQLMethods {
             }
         } catch (SQLException e) {
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
+            System.out.println("On query: " + query);
         }
 
         return result;
@@ -270,6 +311,7 @@ public class SQLMethods {
             stmt.close();
         } catch (SQLException e) {
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
+            System.out.println("On query: " + query);
             return false;
         }
         return true;
