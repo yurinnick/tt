@@ -3,8 +3,7 @@ package hk.ssutt.api.parsing.json;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-import java.io.IOException;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -26,11 +25,10 @@ public class JSONHandler {
         return handler;
     }
 
-    public void fillTimetableFiles(String[][] table) {
-        JSONObject result = new JSONObject();
+    public void fillTimetableFile(String[][] table, String path) {
+
 
         Map tm = new TimetableMap();
-
 
         Map evenClass = new DayMap();
         Map oddClass = new DayMap();
@@ -56,15 +54,30 @@ public class JSONHandler {
         tm.put("even", evenClass);
         tm.put("odd", oddClass);
 
-        StringWriter out = new StringWriter();
+        Writer writer = null;
         try {
+            StringWriter out = new StringWriter();
             JSONValue.writeJSONString(tm, out);
+            String jsonText = out.toString();
+
+
+            writer = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream(path), "utf-8"));
+            writer.write(jsonText);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+        finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
-        String jsonText = out.toString();
-        System.out.print(jsonText);
     }
 
     public String[] classesDivision(String aClass) {
