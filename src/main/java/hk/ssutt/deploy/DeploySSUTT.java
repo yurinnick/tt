@@ -3,8 +3,6 @@ package hk.ssutt.deploy;
 import hk.ssutt.api.fs.FSHandler;
 import hk.ssutt.api.sql.SQLHandler;
 
-import java.sql.Connection;
-
 /**
  * Created by fau on 23/02/14.
  */
@@ -38,7 +36,7 @@ public class DeploySSUTT {
             System.out.println("Database deployed in: " + time + " sec");
             fsd.deployFS(SQLHandler.getInstance(DeployDB.getConnection()));
 
-            DeployXML.deploy(SQLHandler.getInstance(DeployDB.getConnection()));
+            DeployJSON.deploy(SQLHandler.getInstance(DeployDB.getConnection()));
         } else {
             System.out.println("TT was deployed before.");
             new DeployDB(fsm);

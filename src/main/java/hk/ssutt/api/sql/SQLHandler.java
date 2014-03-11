@@ -56,14 +56,12 @@ public class SQLHandler {
         Collections.sort(groups, Utils.groupArrayDirectOrderCmp);
 
         for (String[] s : groups) {
-            String evenfile = String.format("%s/%s/%s/even%s.xml", currentDirectory, faculty, s[0], s[0]);
-            String oddfile = String.format("%s/%s/%s/odd%s.xml", currentDirectory, faculty, s[0], s[0]);
+            String file = String.format("%s/%s/%s.json", currentDirectory, faculty, s[0]);
+
 
             pushOperation(String.format(Queries.fillFaculty,
-                    faculty, s[0], s[1], 1, evenfile, 0));
+                    faculty, s[0], s[1], file, 0));
 
-            pushOperation(String.format(Queries.fillFaculty,
-                    faculty, s[0], s[1], 0, oddfile, 0));
         }
     }
 
@@ -72,16 +70,10 @@ public class SQLHandler {
     }
 
     //==========GROUPS==========
-    public String getEvenTT(String faculty, String group) {
+    public String getTT(String faculty, String group) {
         String[] params = {"PATH"};
 
-        return pullStringOperation(String.format(Queries.evenTT, faculty, group), params);
-    }
-
-    public String getOddTT(String faculty, String group) {
-        String[] params = {"PATH"};
-
-        return pullStringOperation(String.format(Queries.oddTT, faculty, group), params);
+        return pullStringOperation(String.format(Queries.getTT, faculty, group), params);
     }
 
     private boolean groupExists(String faculty, String group) {
@@ -101,9 +93,12 @@ public class SQLHandler {
     }
 
     public List<String> getGroupsFiles(String faculty) {
-        String[] params = {"PATH"};
+        List<String> result = new ArrayList<>();
 
-        return pullListOperation(String.format(Queries.allGroupsOnFaculty, faculty), params);
+        for(String group: getGroupID(faculty))
+            result.add(getTT(faculty, group));
+
+        return result;
     }
 
     public String getGroupWebAddress(String faculty, String group) {

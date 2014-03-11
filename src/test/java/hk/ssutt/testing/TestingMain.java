@@ -9,6 +9,5 @@ public class TestingMain {
         DeploySSUTT d = DeploySSUTT.getInstance();
         d.deploy();
         SQLHandler sqlm = SQLHandler.getInstance(DeployDB.getConnection());
-        System.out.println(sqlm.getEvenTT("knt","151"));
     }
 }

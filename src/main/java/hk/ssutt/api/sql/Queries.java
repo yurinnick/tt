@@ -10,31 +10,27 @@ public abstract class Queries {
 
     public static final String registerDepartment = "INSERT INTO departments (ID, LINK, NAME) VALUES ('%s','%s','%s');";
 
-    public static final String createFaculty = "CREATE TABLE %s (GRP TEXT, ESC TEXT, EVEN INT, PATH TEXT, MANAGED INT);";
+    public static final String createFaculty = "CREATE TABLE %s (GRP TEXT, ESC TEXT, PATH TEXT, MANAGED INT);";
 
-    public static final String fillFaculty = "INSERT INTO %s (GRP, ESC, EVEN, PATH, MANAGED) " +
-            "VALUES ('%s', '%s', %d, '%s', %d);";
+    public static final String fillFaculty = "INSERT INTO %s (GRP, ESC, PATH, MANAGED) " +
+            "VALUES ('%s', '%s', '%s', %d);";
 
     public static final String createManagers = "CREATE TABLE managers(USER TEXT, PASS TEXT, FACULTY TEXT, GRP TEXT);";
 
-    public static final String allGroupsOnFaculty = "SELECT PATH FROM %s;";
-    public static final String evenTT = "SELECT PATH FROM %s WHERE GRP=%s AND EVEN=1;";
-    public static final String oddTT = "SELECT PATH FROM %s WHERE GRP=%s AND EVEN=0;";
+    public static final String getTT = "SELECT PATH FROM %s WHERE GRP='%s';";
 
-    //as groups double (even and odd xml files) select only one. API.FS handles
-    //existence of both files
-    public static final String groupListOnFaculty = "SELECT GRP FROM %s WHERE EVEN=1;";
+    public static final String groupListOnFaculty = "SELECT GRP FROM %s;";
 
     public static final String allFacultiesIDs = "SELECT ID FROM departments;";
 
     // " are required for CHAR(6)
     public static final String facultyNameFromID = "SELECT NAME FROM departments WHERE ID=\"%s\";";
     //once more - need only one!
-    public static final String managedGroupsOnFaculty = "SELECT GRP FROM %s WHERE EVEN=1 AND MANAGED=1;";
+    public static final String managedGroupsOnFaculty = "SELECT GRP FROM %s WHERE MANAGED=1;";
 
     public static final String facultyWebAddress = "SELECT LINK FROM departments WHERE ID=\"%s\";";
 
-    public static final String groupWebAddress = "SELECT ESC FROM %s WHERE GRP=%s AND EVEN=1;";
+    public static final String groupWebAddress = "SELECT ESC FROM %s WHERE GRP=%s;";
 
     public static final String setGroupManaged = "UPDATE %s SET MANAGED=%d WHERE GRP=\"%s\"";
 

@@ -32,7 +32,7 @@ public class DeployFS {
         for (String s : faculties) {
             List<String> groups = sqlm.getGroupID(s);
             for (String g : groups) {
-	            new File("timetables/" + s + "/" + g).mkdirs();
+	            new File("timetables/" + s).mkdirs();
             }
         }
 
