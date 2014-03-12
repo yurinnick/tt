@@ -43,7 +43,7 @@ public class HTMLParser {
         for (int i = 1; i < 9; ++i) {
             Elements data = tr.get(i).getElementsByTag("td");
             for (int j = 0; j < data.size(); j++) {
-                table[i - 1][j] = data.get(j).ownText();
+                table[i - 1][j] = data.get(j).text();
             }
         }
 

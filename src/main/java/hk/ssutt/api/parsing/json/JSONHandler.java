@@ -1,11 +1,9 @@
 package hk.ssutt.api.parsing.json;
 
-import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import java.io.*;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * Created by fau on 11/03/14.
@@ -26,58 +24,36 @@ public class JSONHandler {
     }
 
     public void fillTimetableFile(String[][] table, String path) {
-
-
-        Map tm = new TimetableMap();
-
-        Map evenClass = new DayMap();
-        Map oddClass = new DayMap();
+        TimetableMap tm = new TimetableMap();
+        ClassMap evenDay = new ClassMap();
+        ClassMap oddDay = new ClassMap();
 
         for (int i = 0; i < 7; i++) {
-            Map evenDay = new ClassMap();
-            Map oddDay = new ClassMap();
-
+            DayMap evenClass = new DayMap();
+            DayMap oddClass = new DayMap();
 
             for (int j = 0; j < table[i].length; j++) {
                 String[] divided = classesDivision(table[i][j]);
-
-
-                evenDay.put(days[j], divided[0].trim());
-                oddDay.put(days[j], divided[1].trim());
-
+                evenClass.put(days[j], divided[0].trim());
+                oddClass.put(days[j], divided[1].trim());
             }
-            evenClass.put(i + 1, evenDay);
-            oddClass.put(i + 1, oddDay);
 
+            evenDay.put(i + 1, evenClass);
+            oddDay.put(i + 1, oddClass);
         }
 
-        tm.put("even", evenClass);
-        tm.put("odd", oddClass);
+        tm.put("even", evenDay);
+        tm.put("odd", oddDay);
 
-        Writer writer = null;
-        try {
-            StringWriter out = new StringWriter();
+        try(Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));
+            StringWriter out = new StringWriter();) {
+
             JSONValue.writeJSONString(tm, out);
-            String jsonText = out.toString();
-
-
-            writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(path), "utf-8"));
-            writer.write(jsonText);
+            writer.write(out.toString());
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-        finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
     }
 
     public String[] classesDivision(String aClass) {

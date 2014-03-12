@@ -1,5 +1,6 @@
 package hk.ssutt.testing;
 
+import hk.ssutt.api.parsing.json.JSONHandler;
 import hk.ssutt.api.parsing.xml.XMLParser;
 import hk.ssutt.api.sql.SQLHandler;
 import hk.ssutt.deploy.DeployDB;
@@ -13,7 +14,8 @@ public class TestingMain {
         d.deploy();
         SQLHandler sqlm = SQLHandler.getInstance(DeployDB.getConnection());
         XMLParser xmlParser = XMLParser.getInstance();
-        xmlParser.parse("schedule_do_151.xls");
-
+        String[][] table = xmlParser.parse("schedule_do_151.xls");
+        JSONHandler jsh = JSONHandler.getInstance();
+        jsh.fillTimetableFile(table, "test");
     }
 }
