@@ -28,14 +28,41 @@ public class XMLParser {
         return parser;
     }
 
-    public String[][] parse(String path)  {
+    private static File skipFirstLine(File inputFile) {
+        File outputFile = new File("skipped_" + inputFile.getName());
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+
+            String line;
+            int count = 0;
+            while ((line = reader.readLine()) != null) {
+                if (count == 0 && line.equals("")) {
+                    ++count;
+                    continue;
+                }
+
+                writer.write(line);
+                writer.write("\n");
+                ++count;
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return outputFile;
+    }
+
+    public String[][] parse(String path) {
         String[][] table = new String[8][6];
 
         File data = new File(path);
-       // checkForEmptyLines(data);
+        data = skipFirstLine(data);
 
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dBuilder  = null;
+        DocumentBuilder dBuilder;
         Document doc = null;
 
         try {
@@ -71,25 +98,6 @@ public class XMLParser {
         }
 
         return table;
-    }
-
-    //it appeared on knt/151 file, so empty lines in the beginning of the file that caused fatal error
-    private void checkForEmptyLines(File f) {
-        try {
-            RandomAccessFile raf = new RandomAccessFile(f,"rw");
-            while (raf.getFilePointer()!=raf.length()){
-               //What should be here?
-               Byte b = raf.readByte();
-               if (b!=10)
-                   raf.write(b);
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
     }
 }
 
