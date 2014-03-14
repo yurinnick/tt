@@ -37,11 +37,12 @@ public class DeploySSUTT {
             fsd.deployFS(SQLHandler.getInstance(DeployDB.getConnection()));
 
             DeployJSON.deploy(SQLHandler.getInstance(DeployDB.getConnection()));
+            DeployDB.closeConnection();
         } else {
             System.out.println("TT was deployed before.");
             new DeployDB(fsm);
         }
-        DeployDB.closeConnection();
+
     }
 
 }

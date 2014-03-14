@@ -21,6 +21,6 @@ public class TestingJSON {
 
 
         String[][] table = p.parse("lesson");
-        jsh.fillTimetableFile(table, sqlh.getTT("knt","151"));
+        jsh.fillTimetableFile(table, sqlh.getGroupFile("knt", "151"));
     }
 }

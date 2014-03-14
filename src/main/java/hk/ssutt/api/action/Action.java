@@ -7,6 +7,8 @@ import hk.ssutt.api.parsing.xml.XMLParser;
 import hk.ssutt.api.sql.SQLHandler;
 import hk.ssutt.api.sql.SQLManager;
 
+import java.util.List;
+
 public class Action {
     private static Action ac;
 
@@ -24,15 +26,30 @@ public class Action {
     private Action(){
         fsh = FSHandler.getInstance();
         sqlm = sqlm.getInstance();
-       // sqlm.createConnection(fsh.get)
 
+        if (sqlm.getConnection() == null)
+            sqlm.createConnection(fsh.getTTDirPath());
 
+        sqlh = SQLHandler.getInstance(sqlm.getConnection());
+
+        xmlp = XMLParser.getInstance();
+        htmlp = HTMLParser.getInstance();
+
+        jsh = JSONHandler.getInstance();
     }
 
     public static Action getInstance(){
         if (ac==null)
             ac = new Action();
         return ac;
+    }
+
+    public void fillGroupSchedule(String faculty, String group){
+        String file = sqlh.getGroupFile(faculty, group);
+        System.out.println(file);
+       // String[][] table = ...;
+      //  jsh.fillTimetableFile(table, file);
+
     }
 
 

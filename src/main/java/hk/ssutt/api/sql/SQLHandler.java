@@ -66,7 +66,7 @@ public class SQLHandler {
     }
 
     //==========GROUPS==========
-    public String getTT(String faculty, String group) {
+    public String getGroupFile(String faculty, String group) {
         String[] params = {"PATH"};
 
         return pullStringOperation(String.format(Queries.getTT, faculty, group), params);
@@ -92,7 +92,7 @@ public class SQLHandler {
         List<String> result = new ArrayList<>();
 
         for(String group: getGroupID(faculty))
-            result.add(getTT(faculty, group));
+            result.add(getGroupFile(faculty, group));
 
         return result;
     }

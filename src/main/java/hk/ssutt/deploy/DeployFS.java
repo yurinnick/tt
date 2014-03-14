@@ -18,7 +18,9 @@ public class DeployFS {
 
 //    private static final String ttDir = "/var/timetables/";
     private static final String ttDir = "timetables/";
+    private static final String tempDir = "tmp";
     public static final String dbName = "timetables.db";
+
 
     public DeployFS() {
         new File("timetables/").mkdir();
@@ -35,7 +37,7 @@ public class DeployFS {
 	            new File("timetables/" + s).mkdirs();
             }
         }
-
+        new File(tempDir).mkdir();
         double time = (System.currentTimeMillis() - start) / 1000.0;
         System.out.println("FileSystem deployed in: " + time + " sec");
     }
