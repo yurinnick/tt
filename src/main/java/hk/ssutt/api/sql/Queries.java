@@ -34,6 +34,8 @@ public abstract class Queries {
 
     public static final String setGroupManaged = "UPDATE %s SET MANAGED=%d WHERE GRP=\"%s\"";
 
+    public static final String isGroupManaged = "SELECT GRP FROM %s WHERE GRP=%s and MANAGED=0;";
+
     //admin operations
     public static final String addManager = "INSERT INTO managers (USER,PASS,FACULTY,GRP) VALUES('%s','%s','%s','%s');";
 

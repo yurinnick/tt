@@ -102,27 +102,24 @@ public class FSHandler {
     }
 
     //============downloading========
-    public File downloadFile(URL url, String path) {
+    public File downloadFile(URL url, String path) throws IOException {
         File file = new File(path);
 
-
-        try {
-            ReadableByteChannel rbc = Channels.newChannel(url.openStream());
-            FileOutputStream fos = new FileOutputStream(file);
-            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        ReadableByteChannel rbc = Channels.newChannel(url.openStream());
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 
         return file;
     }
 
     public String generateXMLFilePath() {
         String uuid = UUID.randomUUID().toString();
-        return new File(tempDir).getAbsolutePath();
+        uuid += ".xml";
+        return new File(tempDir, uuid).getAbsolutePath();
 
+    }
+
+    public void removeTempFile(String path) {
+         new File(path).delete();
     }
 }

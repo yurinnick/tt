@@ -155,6 +155,11 @@ public class SQLHandler {
         return true;
     }
 
+    public boolean isGroupManaged(String faculty, String group){
+         String[] params = {"GRP"};
+         return (pullStringOperation(String.format(Queries.isGroupManaged,faculty,group), params).length()!=0);
+    }
+
     public List<String> getManagedGroupsOnFaculty(String faculty) {
         String[] params = {"GRP"};
         return pullListOperation(String.format(Queries.managedGroupsOnFaculty, faculty), params);

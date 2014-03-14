@@ -37,7 +37,7 @@ public class DeployFS {
 	            new File("timetables/" + s).mkdirs();
             }
         }
-        new File(tempDir).mkdir();
+        new File(tempDir).mkdirs();
         double time = (System.currentTimeMillis() - start) / 1000.0;
         System.out.println("FileSystem deployed in: " + time + " sec");
     }
