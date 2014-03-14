@@ -1,5 +1,6 @@
 package hk.ssutt.api.parsing.xml;
 
+import hk.ssutt.api.fs.FSHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -29,8 +30,7 @@ public class XMLParser {
     }
 
     private static File skipFirstLine(File inputFile) {
-        File outputFile = new File("skipped_" + inputFile.getName());
-
+        File outputFile = new File(inputFile.getParent() + "/skipped_" + inputFile.getName());
         try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
              BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
 

@@ -36,4 +36,10 @@ public abstract class Utils {
         }
         return result;
     }
+
+    public static String skippedFileFullPath(String localxml) {
+        String parent = localxml.substring(0,localxml.lastIndexOf("/"));
+        String file = "/skipped_" + localxml.substring(localxml.lastIndexOf("/")+1, localxml.length());
+        return parent+file;
+    }
 }

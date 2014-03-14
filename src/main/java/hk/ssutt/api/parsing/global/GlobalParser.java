@@ -3,6 +3,7 @@ package hk.ssutt.api.parsing.global;
 import hk.ssutt.api.fs.FSHandler;
 import hk.ssutt.api.parsing.html.HTMLParser;
 import hk.ssutt.api.parsing.xml.XMLParser;
+import hk.ssutt.api.utils.Utils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -41,7 +42,11 @@ public class GlobalParser {
 
             result = xmlp.parse(localTable);
 
+            System.out.println(localTable);
+            System.out.println(Utils.skippedFileFullPath(localTable));
+
             fsh.removeTempFile(localTable);
+            fsh.removeTempFile(Utils.skippedFileFullPath(localTable));
         } catch (IOException e) {
             e.printStackTrace();
             //if some shit with XML happens, we have HTML
