@@ -62,35 +62,57 @@ public class JSONHandler {
 
     public String[] classesDivision(String aClass) {
         String[] result = new String[2];
-        //has any?
 
-        if (aClass.startsWith(ev)) {
-            //normal case: has both even and odd triggers
-            if (aClass.indexOf(od) != -1) {
-                aClass = aClass.substring(aClass.indexOf(ev), aClass.indexOf(od));
+        if (((aClass.indexOf(ev))!=-1)&&(aClass.indexOf(od)!=-1)) {
+           if (aClass.indexOf(od)>aClass.indexOf(ev)) {
+               result[0] = aClass.substring(0, aClass.indexOf(od)).replace(ev, "");
+               result[1] = aClass.substring(aClass.indexOf(od), aClass.length()-1).replace(od, "");
+               return result;
+           }
+           else
+           {
+               result[1] = aClass.substring(0, aClass.indexOf(ev)).replace(od, "");
+               result[0] = aClass.substring(aClass.indexOf(ev), aClass.length()-1).replace(ev, "");
+               return result;
+           }
+        }
+
+        if ((aClass.indexOf(ev) != -1)) {
+            //has even marker, in the beggining of the cell and has no odd marker
+            if ((aClass.indexOf(ev) == 0) && (aClass.indexOf(od)) == -1) {
                 result[0] = aClass.replace(ev, "");
                 result[1] = "";
                 return result;
             }
-            //faggot case: had only even trigger (found @ bf/211), but has both even and odd classes
-            else {
-                aClass = aClass.substring(aClass.indexOf(ev), aClass.length() - 1);
-
+            //FAGGOT MODE: has only even marker, although classes are even/odd  (found @ bf/211)
+            if ((aClass.indexOf(ev) != 0) && (aClass.indexOf(od)) == -1) {
+                result[0] = aClass.substring(aClass.indexOf(ev), aClass.length() - 1).replace(ev, "");
                 result[1] = aClass.substring(0, aClass.indexOf(ev));
-                result[0] = aClass.replace(ev, "");
                 return result;
             }
         }
-        if (aClass.startsWith(od)) {
-            aClass = aClass.substring(aClass.indexOf(od), aClass.length() - 1);
-            result[0] = "";
-            result[1] = aClass.replace(od, "");
-            return result;
+
+        //same for odd
+        if ((aClass.indexOf(od) != -1)) {
+            //has even marker, in the beggining of the cell and has no odd marker
+            if ((aClass.indexOf(od) == 0) && (aClass.indexOf(ev)) == -1) {
+                result[1] = aClass.replace(od, "");
+                result[0] = "";
+                return result;
+            }
+            //FAGGOT MODE: has only odd marker, although classes are even/odd  (found @ bf/211 as well)
+            if ((aClass.indexOf(od) != 0) && (aClass.indexOf(ev)) == -1) {
+                result[1] = aClass.substring(aClass.indexOf(od), aClass.length() - 1).replace(od, "");
+                result[0] = aClass.substring(0, aClass.indexOf(od));
+                return result;
+            }
         }
 
+        //has no markers, both weeks
         result[0] = result[1] = aClass;
-
         return result;
+
+
     }
 
 }

@@ -15,7 +15,7 @@ public class TestingMain {
         DeploySSUTT d = DeploySSUTT.getInstance();
         d.deploy();
         Action a = Action.getInstance();
-        a.fillAllSchedule();
+        a.fillGroupSchedule("bf","211");
 
     }
 }
