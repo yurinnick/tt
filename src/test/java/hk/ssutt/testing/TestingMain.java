@@ -12,10 +12,5 @@ public class TestingMain {
     public static void main(String[] args) {
         DeploySSUTT d = DeploySSUTT.getInstance();
         d.deploy();
-        SQLHandler sqlm = SQLHandler.getInstance(DeployDB.getConnection());
-        XMLParser xmlParser = XMLParser.getInstance();
-        String[][] table = xmlParser.parse("schedule_do_151.xls");
-        JSONHandler jsh = JSONHandler.getInstance();
-        jsh.fillTimetableFile(table, "test");
     }
 }

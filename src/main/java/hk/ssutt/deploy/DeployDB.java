@@ -4,13 +4,11 @@ package hk.ssutt.deploy;
 import hk.ssutt.api.fs.FSHandler;
 import hk.ssutt.api.parsing.html.HTMLParser;
 import hk.ssutt.api.sql.SQLHandler;
+import hk.ssutt.api.sql.SQLManager;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 
 public class DeployDB {
@@ -19,10 +17,17 @@ public class DeployDB {
 	private static String dbPath = "";
 	private static Connection c = null;
 
+    private static SQLManager sqlm;
+
 	public DeployDB(String dbPath) {
         this.dbPath = dbPath;
 
-		SQLHandler sqlh = SQLHandler.getInstance(getConnection());
+        sqlm = SQLManager.getInstance();
+        sqlm.createConnection(dbPath);
+        c = sqlm.getConnection();
+
+        SQLHandler sqlh = SQLHandler.getInstance(c);
+
         HTMLParser htmlh = HTMLParser.getInstance();
         FSHandler fsh = FSHandler.getInstance();
 
@@ -47,20 +52,10 @@ public class DeployDB {
 	}
 
 	public static Connection getConnection() {
-		if (c == null) {
-			createConnection();
-		}
+        return sqlm.getConnection();
+    }
 
-		return c;
-	}
-
-	private static void createConnection() {
-		try {
-			Class.forName("org.sqlite.JDBC");
-			c = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-		} catch (Exception e) {
-			System.out.println(e.getClass().getName() + ": " + e.getMessage());
-			System.exit(1);
-		}
-	}
+    public static void closeConnection() {
+        sqlm.closeConnection(c);
+    }
 }

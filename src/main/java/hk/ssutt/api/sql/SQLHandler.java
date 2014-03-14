@@ -14,22 +14,18 @@ import java.util.*;
 
 public class SQLHandler {
     private static Connection connection;
-    private static SQLHandler sqlm;
+    private static SQLHandler sqlh;
 
     private SQLHandler() {
     }
 
     public static SQLHandler getInstance(Connection c) {
-        if (sqlm == null) {
-            sqlm = new SQLHandler();
+        if (sqlh == null) {
+            sqlh = new SQLHandler();
         }
 
-        setConnection(c);
-        return sqlm;
-    }
-
-    private static void setConnection(Connection c) {
         connection = c;
+        return sqlh;
     }
 
     //==========DEPLOYMENT==========

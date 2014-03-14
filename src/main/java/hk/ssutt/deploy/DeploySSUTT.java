@@ -41,6 +41,7 @@ public class DeploySSUTT {
             System.out.println("TT was deployed before.");
             new DeployDB(fsm);
         }
+        DeployDB.closeConnection();
     }
 
 }
