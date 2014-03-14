@@ -30,7 +30,7 @@ public abstract class Queries {
 
     public static final String facultyWebAddress = "SELECT LINK FROM departments WHERE ID=\"%s\";";
 
-    public static final String groupWebAddress = "SELECT ESC FROM %s WHERE GRP=%s;";
+    public static final String groupWebAddress = "SELECT ESC FROM %s WHERE GRP=\"%s\";";
 
     public static final String setGroupManaged = "UPDATE %s SET MANAGED=%d WHERE GRP=\"%s\"";
 

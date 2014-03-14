@@ -91,7 +91,7 @@ public class SQLHandler {
     public List<String> getGroupsFiles(String faculty) {
         List<String> result = new ArrayList<>();
 
-        for(String group: getGroupID(faculty))
+        for (String group : getGroupID(faculty))
             result.add(getGroupFile(faculty, group));
 
         return result;
@@ -155,9 +155,9 @@ public class SQLHandler {
         return true;
     }
 
-    public boolean isGroupManaged(String faculty, String group){
-         String[] params = {"GRP"};
-         return (pullStringOperation(String.format(Queries.isGroupManaged,faculty,group), params).length()!=0);
+    public boolean isGroupManaged(String faculty, String group) {
+        String[] params = {"GRP"};
+        return (pullStringOperation(String.format(Queries.isGroupManaged, faculty, group), params).length() != 0);
     }
 
     public List<String> getManagedGroupsOnFaculty(String faculty) {

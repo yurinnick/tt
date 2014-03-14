@@ -21,7 +21,7 @@ public class Action {
 
     private JSONHandler jsh;
 
-    private Action(){
+    private Action() {
         fsh = FSHandler.getInstance();
         sqlm = sqlm.getInstance();
 
@@ -33,41 +33,41 @@ public class Action {
         jsh = JSONHandler.getInstance();
     }
 
-    public static Action getInstance(){
-        if (ac==null)
+    public static Action getInstance() {
+        if (ac == null)
             ac = new Action();
         return ac;
     }
 
-    public void fillGroupSchedule(String faculty, String group){
+    //============TT fill
+    public void fillGroupSchedule(String faculty, String group) {
         String file = sqlh.getGroupFile(faculty, group);
         String groupAddress = sqlh.getGroupWebAddress(faculty, group);
-        System.out.println(file);
 
         GlobalParser gp = new GlobalParser(groupAddress);
 
         String[][] table = gp.parse();
 
         jsh.fillTimetableFile(table, file);
+        System.out.printf("Added timetable for: %s/%s\n", faculty, group);
     }
 
     public void fillFacultySchedule(String faculty) {
-        for (String group: sqlh.getGroupID(faculty)) {
+        for (String group : sqlh.getGroupID(faculty)) {
             fillGroupSchedule(faculty, group);
         }
     }
 
     public void fillAllSchedule() {
-        for (String fac: sqlh.getAllFacultiesID()){
+        for (String fac : sqlh.getAllFacultiesID()) {
             fillFacultySchedule(fac);
         }
     }
 
     public void managedFillGroup(String faculty, String group) {
-        if (!sqlh.isGroupManaged(faculty,group)) {
+        if (!sqlh.isGroupManaged(faculty, group)) {
             fillGroupSchedule(faculty, group);
-        }
-        else {
+        } else {
 
             //send message to manager
         }
@@ -75,13 +75,13 @@ public class Action {
     }
 
     public void managedFillFaculty(String faculty) {
-        for (String group: sqlh.getGroupID(faculty)) {
+        for (String group : sqlh.getGroupID(faculty)) {
             managedFillGroup(faculty, group);
         }
     }
 
     public void managedFillAll() {
-        for (String fac: sqlh.getAllFacultiesID()){
+        for (String fac : sqlh.getAllFacultiesID()) {
             managedFillFaculty(fac);
         }
     }

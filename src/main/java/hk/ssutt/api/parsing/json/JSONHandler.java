@@ -12,6 +12,9 @@ public class JSONHandler {
     private static JSONHandler handler;
     private static String[] days = {"mon", "tue", "wed", "thu", "fri", "sat"};
 
+    private static final String ev = "чис.";
+    private static final String od = "знам.";
+
     private JSONHandler() {
     }
 
@@ -24,6 +27,7 @@ public class JSONHandler {
     }
 
     public void fillTimetableFile(String[][] table, String path) {
+        System.out.println("Filling " + path);
         TimetableMap tm = new TimetableMap();
         ClassMap evenDay = new ClassMap();
         ClassMap oddDay = new ClassMap();
@@ -45,8 +49,8 @@ public class JSONHandler {
         tm.put("even", evenDay);
         tm.put("odd", oddDay);
 
-        try(Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));
-            StringWriter out = new StringWriter();) {
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));
+             StringWriter out = new StringWriter();) {
 
             JSONValue.writeJSONString(tm, out);
             writer.write(out.toString());
@@ -59,21 +63,32 @@ public class JSONHandler {
     public String[] classesDivision(String aClass) {
         String[] result = new String[2];
         //has any?
-        if (aClass.startsWith("чис.") || aClass.startsWith("знам.")) {
-            if (aClass.startsWith("чис.")) {
-                aClass = aClass.substring(aClass.indexOf("чис."), aClass.indexOf("знам."));
-                result[0] = aClass.replace("чис.", "");
+
+        if (aClass.startsWith(ev)) {
+            //normal case: has both even and odd triggers
+            if (aClass.indexOf(od) != -1) {
+                aClass = aClass.substring(aClass.indexOf(ev), aClass.indexOf(od));
+                result[0] = aClass.replace(ev, "");
                 result[1] = "";
                 return result;
-            } else {
-                aClass = aClass.substring(aClass.indexOf("знам."), aClass.length() - 1);
-                result[0] = "";
-                result[1] = aClass.replace("знам.", "");
+            }
+            //faggot case: had only even trigger (found @ bf/211), but has both even and odd classes
+            else {
+                aClass = aClass.substring(aClass.indexOf(ev), aClass.length() - 1);
+
+                result[1] = aClass.substring(0, aClass.indexOf(ev));
+                result[0] = aClass.replace(ev, "");
                 return result;
             }
-        } else {
-            result[0] = result[1] = aClass;
         }
+        if (aClass.startsWith(od)) {
+            aClass = aClass.substring(aClass.indexOf(od), aClass.length() - 1);
+            result[0] = "";
+            result[1] = aClass.replace(od, "");
+            return result;
+        }
+
+        result[0] = result[1] = aClass;
 
         return result;
     }

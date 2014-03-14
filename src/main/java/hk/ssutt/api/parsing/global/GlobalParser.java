@@ -25,11 +25,9 @@ public class GlobalParser {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        System.out.println(xmlURL.toString());
-        System.out.println(groupURL.toString());
     }
 
-    public String[][] parse(){
+    public String[][] parse() {
         String[][] result = null;
 
         FSHandler fsh = FSHandler.getInstance();
@@ -41,9 +39,6 @@ public class GlobalParser {
             fsh.downloadFile(xmlURL, localTable);
 
             result = xmlp.parse(localTable);
-
-            System.out.println(localTable);
-            System.out.println(Utils.skippedFileFullPath(localTable));
 
             fsh.removeTempFile(localTable);
             fsh.removeTempFile(Utils.skippedFileFullPath(localTable));
