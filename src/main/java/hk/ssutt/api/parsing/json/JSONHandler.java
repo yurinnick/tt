@@ -30,26 +30,6 @@ public class JSONHandler {
 
     public void fillTimetableFile(String[][] table, String path) {
         System.out.println("Filling " + path);
-//        TimetableMap tm = new TimetableMap();
-//        ClassMap evenDay = new ClassMap();
-//        ClassMap oddDay = new ClassMap();
-//
-//        for (int i = 0; i < 7; i++) {
-//            DayMap evenClass = new DayMap();
-//            DayMap oddClass = new DayMap();
-//
-//            for (int j = 0; j < table[i].length; j++) {
-//                String[] divided = classesDivision(table[i][j]);
-//                evenClass.put(days[j], divided[0].trim());
-//                oddClass.put(days[j], divided[1].trim());
-//            }
-//
-//            evenDay.put(i + 1, evenClass);
-//            oddDay.put(i + 1, oddClass);
-//        }
-//
-//        tm.put("even", evenDay);
-//        tm.put("odd", oddDay);
         /*
         The workflow of new JSON timetable mech:
         We've got to use arrays instead of maps to get sorted result
@@ -64,12 +44,14 @@ public class JSONHandler {
         //[[1st,2nd,3rd],[1st,2nd,3rd]]
         JSONArray even = new JSONArray();
         JSONArray odd = new JSONArray();
-        for (int i=0;i<7;i++) {
+        for (int i = 0; i < 7; i++) {
+            //[{mon: class},{tue:class}]
             JSONArray evenClass = new JSONArray();
             JSONArray oddClass = new JSONArray();
 
-            for (int j=0;j<table[i].length; j++) {
+            for (int j = 0; j < table[i].length; j++) {
                 String[] divided = classesDivision(table[i][j]);
+                //mon:class
                 JSONObject evenDayClass = new JSONObject();
                 JSONObject oddDayClass = new JSONObject();
                 evenDayClass.put(days[j], divided[0].trim());
@@ -96,18 +78,16 @@ public class JSONHandler {
     public String[] classesDivision(String aClass) {
         String[] result = new String[2];
 
-        if (((aClass.indexOf(ev))!=-1)&&(aClass.indexOf(od)!=-1)) {
-           if (aClass.indexOf(od)>aClass.indexOf(ev)) {
-               result[0] = aClass.substring(0, aClass.indexOf(od)).replace(ev, "");
-               result[1] = aClass.substring(aClass.indexOf(od), aClass.length()-1).replace(od, "");
-               return result;
-           }
-           else
-           {
-               result[1] = aClass.substring(0, aClass.indexOf(ev)).replace(od, "");
-               result[0] = aClass.substring(aClass.indexOf(ev), aClass.length()-1).replace(ev, "");
-               return result;
-           }
+        if (((aClass.indexOf(ev)) != -1) && (aClass.indexOf(od) != -1)) {
+            if (aClass.indexOf(od) > aClass.indexOf(ev)) {
+                result[0] = aClass.substring(0, aClass.indexOf(od)).replace(ev, "");
+                result[1] = aClass.substring(aClass.indexOf(od), aClass.length() - 1).replace(od, "");
+                return result;
+            } else {
+                result[1] = aClass.substring(0, aClass.indexOf(ev)).replace(od, "");
+                result[0] = aClass.substring(aClass.indexOf(ev), aClass.length() - 1).replace(ev, "");
+                return result;
+            }
         }
 
         if ((aClass.indexOf(ev) != -1)) {
@@ -149,15 +129,3 @@ public class JSONHandler {
     }
 
 }
-
-class DayMap extends LinkedHashMap<String, String> {
-}
-
-//1: monday: ..., tuesday: ...; 2: monday: ...
-class ClassMap extends LinkedHashMap<Integer, DayMap> {
-}
-
-//even: 1: monday and so on; odd: 2: ...
-class TimetableMap extends LinkedHashMap<String, ClassMap> {
-}
-
