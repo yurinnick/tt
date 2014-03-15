@@ -1,14 +1,14 @@
-package hk.ssutt.api.action;
+package hk.ssutt.action;
 
+import com.sun.tools.javac.nio.PathFileManager;
 import hk.ssutt.api.fs.FSHandler;
 import hk.ssutt.api.parsing.global.GlobalParser;
-import hk.ssutt.api.parsing.html.HTMLParser;
 import hk.ssutt.api.parsing.json.JSONHandler;
-import hk.ssutt.api.parsing.xml.XMLParser;
 import hk.ssutt.api.sql.SQLHandler;
 import hk.ssutt.api.sql.SQLManager;
 
-import java.util.List;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class Action {
     private static Action ac;
@@ -84,6 +84,13 @@ public class Action {
         for (String fac : sqlh.getAllFacultiesID()) {
             managedFillFaculty(fac);
         }
+    }
+
+    //================TT get timetable
+    public String getTT(String faculty, String group) {
+        String file = sqlh.getGroupFile(faculty, group);
+        Path p = Paths.get(file);
+        return fsh.printContents(p);
     }
 
 

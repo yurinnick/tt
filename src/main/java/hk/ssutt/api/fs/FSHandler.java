@@ -81,7 +81,17 @@ public class FSHandler {
         }
     }
 
-    //========Deployment operations==============
+    public String printContents(Path path) {
+        String result = "";
+        try (InputStream in = Files.newInputStream(path);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+             result = reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+        //========Deployment operations==============
     public boolean notInExclusion(String s, Path exclFile) {
         try (InputStream in = Files.newInputStream(exclFile);
              BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {

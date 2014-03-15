@@ -1,5 +1,7 @@
 package hk.ssutt.api.parsing.json;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import java.io.*;
@@ -28,31 +30,62 @@ public class JSONHandler {
 
     public void fillTimetableFile(String[][] table, String path) {
         System.out.println("Filling " + path);
-        TimetableMap tm = new TimetableMap();
-        ClassMap evenDay = new ClassMap();
-        ClassMap oddDay = new ClassMap();
+//        TimetableMap tm = new TimetableMap();
+//        ClassMap evenDay = new ClassMap();
+//        ClassMap oddDay = new ClassMap();
+//
+//        for (int i = 0; i < 7; i++) {
+//            DayMap evenClass = new DayMap();
+//            DayMap oddClass = new DayMap();
+//
+//            for (int j = 0; j < table[i].length; j++) {
+//                String[] divided = classesDivision(table[i][j]);
+//                evenClass.put(days[j], divided[0].trim());
+//                oddClass.put(days[j], divided[1].trim());
+//            }
+//
+//            evenDay.put(i + 1, evenClass);
+//            oddDay.put(i + 1, oddClass);
+//        }
+//
+//        tm.put("even", evenDay);
+//        tm.put("odd", oddDay);
+        /*
+        The workflow of new JSON timetable mech:
+        We've got to use arrays instead of maps to get sorted result
+        so
+        All indices START with ZERO (!)
+        timetable = [even,odd]
+        even = [firstclass,secondclass,thirdclass]
+        firstclass = [ {mon: a}, {tue: b}, {wed: c} ]
+         */
+        //[even,odd]
+        JSONArray timetable = new JSONArray();
+        //[[1st,2nd,3rd],[1st,2nd,3rd]]
+        JSONArray even = new JSONArray();
+        JSONArray odd = new JSONArray();
+        for (int i=0;i<7;i++) {
+            JSONArray evenClass = new JSONArray();
+            JSONArray oddClass = new JSONArray();
 
-        for (int i = 0; i < 7; i++) {
-            DayMap evenClass = new DayMap();
-            DayMap oddClass = new DayMap();
-
-            for (int j = 0; j < table[i].length; j++) {
+            for (int j=0;j<table[i].length; j++) {
                 String[] divided = classesDivision(table[i][j]);
-                evenClass.put(days[j], divided[0].trim());
-                oddClass.put(days[j], divided[1].trim());
+                JSONObject evenDayClass = new JSONObject();
+                JSONObject oddDayClass = new JSONObject();
+                evenDayClass.put(days[j], divided[0].trim());
+                oddDayClass.put(days[j], divided[1].trim());
+                evenClass.add(evenDayClass);
+                oddClass.add(oddDayClass);
             }
-
-            evenDay.put(i + 1, evenClass);
-            oddDay.put(i + 1, oddClass);
+            even.add(evenClass);
+            odd.add(oddClass);
         }
-
-        tm.put("even", evenDay);
-        tm.put("odd", oddDay);
-
+        timetable.add(even);
+        timetable.add(odd);
         try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));
              StringWriter out = new StringWriter();) {
 
-            JSONValue.writeJSONString(tm, out);
+            JSONValue.writeJSONString(timetable, out);
             writer.write(out.toString());
 
         } catch (IOException e) {
