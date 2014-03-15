@@ -23,8 +23,11 @@ public abstract class Queries {
 
     public static final String allFacultiesIDs = "SELECT ID FROM departments;";
 
-    // " are required for CHAR(6)
+    public static final String allFacultiesNames = "SELECT NAME FROM departments;";
+    // " are required for russian and char(6)
     public static final String facultyNameFromID = "SELECT NAME FROM departments WHERE ID=\"%s\";";
+
+    public static final String facultyIDFromName = "SELECT ID FROM departments WHERE NAME=\"%s\"";
     //once more - need only one!
     public static final String managedGroupsOnFaculty = "SELECT GRP FROM %s WHERE MANAGED=1;";
 
@@ -34,7 +37,7 @@ public abstract class Queries {
 
     public static final String setGroupManaged = "UPDATE %s SET MANAGED=%d WHERE GRP=\"%s\"";
 
-    public static final String isGroupManaged = "SELECT GRP FROM %s WHERE GRP=%s and MANAGED=0;";
+    public static final String isGroupManaged = "SELECT GRP FROM %s WHERE GRP=\"%s\" and MANAGED=0;";
 
     //admin operations
     public static final String addManager = "INSERT INTO managers (USER,PASS,FACULTY,GRP) VALUES('%s','%s','%s','%s');";
@@ -46,5 +49,6 @@ public abstract class Queries {
     public static final String getManager = "SELECT USER, PASS FROM managers WHERE FACULTY='%s' AND GRP='%s'";
 
     public static final String transferManager = "UPDATE managers SET USER='%s', PASS='%s' WHERE FACULTY='%s' and GRP='%s'";
+
 
 }

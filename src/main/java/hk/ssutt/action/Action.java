@@ -1,8 +1,8 @@
 package hk.ssutt.action;
 
-import com.sun.tools.javac.nio.PathFileManager;
 import hk.ssutt.api.fs.FSHandler;
 import hk.ssutt.api.parsing.global.GlobalParser;
+import hk.ssutt.api.parsing.json.JSONFormatter;
 import hk.ssutt.api.parsing.json.JSONHandler;
 import hk.ssutt.api.sql.SQLHandler;
 import hk.ssutt.api.sql.SQLManager;
@@ -87,10 +87,32 @@ public class Action {
     }
 
     //================TT get timetable
-    public String getTT(String faculty, String group) {
+    public String getTTByCode(String faculty, String group) {
         String file = sqlh.getGroupFile(faculty, group);
         Path p = Paths.get(file);
         return fsh.printContents(p);
+    }
+
+    public String getTTByName(String faculty, String group) {
+        String code = sqlh.getFacultyIDFromName(faculty);
+        return getTTByCode(code, group);
+    }
+
+    public String getFacultiesList() {
+        return JSONFormatter.jsonList(sqlh.getAllFacultiesNames());
+    }
+
+    public String getFacultyCodeList() {
+        return JSONFormatter.jsonList(sqlh.getAllFacultiesID());
+    }
+
+    public String getGroups(String id) {
+        return JSONFormatter.jsonList(sqlh.getGroupID(id));
+    }
+
+    public String getGroupsByName(String name) {
+        String code = sqlh.getFacultyIDFromName(name);
+        return getGroups(code);
     }
 
 

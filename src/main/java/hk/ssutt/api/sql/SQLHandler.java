@@ -117,9 +117,19 @@ public class SQLHandler {
         return pullListOperation(Queries.allFacultiesIDs, params);
     }
 
+    public List<String> getAllFacultiesNames() {
+        String[] params = {"NAME"};
+        return pullListOperation(Queries.allFacultiesNames, params);
+    }
+
     public String getFacultyNameFromID(String facultyID) {
         String[] params = {"NAME"};
         return pullStringOperation(String.format(Queries.facultyNameFromID, facultyID), params);
+    }
+
+    public String getFacultyIDFromName(String facultyName) {
+        String[] params = {"ID"};
+        return pullStringOperation(String.format(Queries.facultyIDFromName, facultyName), params);
     }
 
     public String getFacultyWebAddress(String faculty) {
