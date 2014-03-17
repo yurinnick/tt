@@ -1,0 +1,17 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="tt:Web exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/tt_Web_exploded</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="tt/web/Web" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="tt" />
+        </element>
+      </element>
+      <element id="library" level="project" name="Maven: com.googlecode.json-simple:json-simple:1.1" />
+      <element id="library" level="project" name="Maven: org.apache.tomcat:tomcat-servlet-api:7.0.33" />
+      <element id="library" level="project" name="Maven: org.jsoup:jsoup:1.7.3" />
+      <element id="library" level="project" name="Maven: org.xerial:sqlite-jdbc:3.7.2" />
+    </root>
+  </artifact>
+</component>
