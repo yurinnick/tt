@@ -18,8 +18,9 @@ public class Initializer implements ServletContextListener{
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
         // do all the tasks that you need to perform just after the server starts
-        DeploySSUTT d = DeploySSUTT.getInstance();
+         DeploySSUTT d = DeploySSUTT.getInstance();
         d.deploy();
+        System.out.println("hello");
         //Notification that the web application initialization process is starting
     }
 

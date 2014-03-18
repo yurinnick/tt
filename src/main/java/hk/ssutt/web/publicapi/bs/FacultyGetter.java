@@ -12,25 +12,23 @@ import hk.ssutt.action.Action;
 public class FacultyGetter extends HttpServlet {
     private static Action ac;
     public void init() throws ServletException {
-        System.out.println(System.getProperty("user.dir"));
+        ac = Action.getInstance();
+
     }
 
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response)
             throws ServletException, IOException {
-// Set response content type
+
         response.setContentType("text/html");
-// Actual logic goes here.
-        String faculty = request.getParameter("faculty");
-        String group = request.getParameter("grp");
+        response.setContentType("text/html; charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
         PrintWriter out = response.getWriter();
-        if (faculty == null || group == null)
-            out.println("null");
-        else {
-            String message = String.format("/usr/local/tt/timetables/%s/%s.json contents", faculty, group);
-            out.println(message);
+
+        out.print(ac.getFacultiesList());
         }
-    }
+
 
     public void destroy() {
 // do nothing.

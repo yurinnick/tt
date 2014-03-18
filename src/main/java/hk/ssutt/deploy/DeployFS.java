@@ -17,8 +17,8 @@ public class DeployFS {
     */
 
 //    private static final String ttDir = "/var/timetables/";
-    private static final String ttDir = "timetables/";
-    private static final String tempDir = "tmp";
+    private static final String ttDir = "/Users/fau/tt/timetables/";
+    private static final String tempDir = "/Users/fau/tt/tmp";
     public static final String dbName = "timetables.db";
 
 
