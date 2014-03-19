@@ -4,7 +4,7 @@ SSU TimeTable API Reference
 General
 -------
 
-All methods use common prefix /api/<api_version>, where <api_version> is the major API version number.
+All methods use common prefix /api/```api_version```, where ```api_version``` is the major API version number.
 
 
 Basic Requests
