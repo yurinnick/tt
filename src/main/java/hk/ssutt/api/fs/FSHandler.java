@@ -15,9 +15,9 @@ import java.util.UUID;
 public class FSHandler {
     private static FSHandler fsm;
 
-    private static String ttDir = "/Users/fau/tt/timetables/";
+    private static String ttDir = "timetables/";
     private static String ttDBName = "timetables.db";
-    private static String tempDir = "/Users/fau/tt/tmp";
+    private static String tempDir = "tmp";
     //for production
     //private static final String ttDir = "/var/timetables/";
     private static File dbFile;

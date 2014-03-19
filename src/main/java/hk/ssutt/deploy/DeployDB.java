@@ -13,7 +13,7 @@ import java.util.List;
 
 public class DeployDB {
 	private static final String scheduleURL = "http://www.sgu.ru/schedule";
-	private static final Path exclFile = Paths.get("/Users/fau/tt/.excludeFaculty").toAbsolutePath();
+	private static final Path exclFile = Paths.get(".excludeFaculty").toAbsolutePath();
 	private static String dbPath = "";
 	private static Connection c = null;
 
