@@ -3,13 +3,6 @@
     <output-path>$PROJECT_DIR$/target</output-path>
     <root id="archive" name="tt.war">
       <element id="artifact" artifact-name="tt:war exploded" />
-      <element id="directory" name="WEB-INF">
-        <element id="directory" name="lib">
-          <element id="library" level="project" name="org.apache.maven.plugins:maven-compiler-plugin:3.1" />
-          <element id="library" level="project" name="org.apache.maven.plugins:maven-resources-plugin:2.6" />
-          <element id="library" level="project" name="org.apache.maven.plugins:maven-war-plugin:2.1.1" />
-        </element>
-      </element>
     </root>
   </artifact>
 </component>
